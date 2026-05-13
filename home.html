@@ -754,7 +754,13 @@ firstRow['Banner 3']
 let bannerHTML = "";
 
 banners.forEach(img=>{
-bannerHTML += `<img src="${img}">`;
+bannerHTML += `
+<img 
+src="${img}"
+fetchpriority="high"
+loading="eager"
+>
+`;
 });
 
 document.getElementById("bannerSlide").innerHTML = bannerHTML;
