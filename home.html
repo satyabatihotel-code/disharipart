@@ -857,7 +857,11 @@ html += `
 <div class="product-card"
 onclick='openPopup(${JSON.stringify(product)})'>
 
-<img src="${product['Image Url'] || ''}">
+<img 
+src="${product['Image Url'] || ''}" 
+loading="lazy"
+decoding="async"
+>
 
 <div class="product-id">
 ${product['Product ID'] || ''}
