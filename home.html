@@ -1016,15 +1016,40 @@ updateCartCount();
 /* SEARCH */
 
 document.getElementById("searchInput")
-.addEventListener("keyup",function(){
+.addEventListener("input",function(){
 
-let value = this.value.toLowerCase();
+let value = this.value.toLowerCase().trim();
 
-let filtered = allProducts.filter(item=>
-(item['Product Name'] || '')
-.toLowerCase()
-.includes(value)
+if(value === ""){
+
+loadNewArrivals(allProducts);
+
+loadSections(allProducts);
+
+return;
+
+}
+
+let filtered = allProducts.filter(item => {
+
+let name = (item['Product Name'] || '').toLowerCase();
+
+let category = (item['Category'] || '').toLowerCase();
+
+let desc = (item['Description1'] || '').toLowerCase();
+
+let id = (item['Product ID'] || '').toLowerCase();
+
+return (
+name.includes(value) ||
+category.includes(value) ||
+desc.includes(value) ||
+id.includes(value)
 );
+
+});
+
+loadNewArrivals(filtered);
 
 loadSections(filtered);
 
