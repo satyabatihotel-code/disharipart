@@ -735,11 +735,21 @@ menu.style.display = "block";
 
 /* BANNERS */
 
-const banners = [
-"https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200",
-"https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200",
-"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200"
-];
+/* BANNERS */
+
+let banners = [];
+
+let currentBanner = 0;
+
+function loadDynamicBanners(data){
+
+let firstRow = data[0] || {};
+
+banners = [
+firstRow['Banner 1'],
+firstRow['Banner 2'],
+firstRow['Banner 3']
+].filter(img => img && img.trim() !== "");
 
 let bannerHTML = "";
 
@@ -749,7 +759,7 @@ bannerHTML += `<img src="${img}">`;
 
 document.getElementById("bannerSlide").innerHTML = bannerHTML;
 
-let currentBanner = 0;
+if(banners.length > 1){
 
 setInterval(()=>{
 
@@ -762,7 +772,11 @@ currentBanner = 0;
 document.getElementById("bannerSlide").style.transform =
 `translateX(-${currentBanner * 100}%)`;
 
-},3000);
+},5000);
+
+}
+
+}
 
 /* FETCH */
 
