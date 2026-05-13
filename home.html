@@ -1054,7 +1054,16 @@ loadNewArrivals(filtered);
 loadSections(filtered);
 
 });
+document.getElementById("searchInput")
+.addEventListener("keydown", function(e){
 
+if(e.key === "Enter"){
+
+this.blur();
+
+}
+
+});
 /* POPUP */
 
 function openPopup(product){
