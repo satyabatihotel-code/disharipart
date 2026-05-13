@@ -183,7 +183,10 @@ padding:20px 15px 12px;
 }
 
 .products{
-display:flex;
+display:grid;
+grid-auto-flow:column;
+grid-template-rows:repeat(2, auto);
+grid-auto-columns:200px;
 overflow-x:auto;
 gap:15px;
 padding:0 15px 20px;
@@ -195,13 +198,12 @@ display:none;
 }
 
 .product-card{
-min-width:200px;
+width:200px;
 min-height:420px;
 background:white;
 border-radius:22px;
 padding:12px;
 box-shadow:0 2px 15px rgba(0,0,0,0.08);
-flex-shrink:0;
 display:flex;
 flex-direction:column;
 cursor:pointer;
@@ -210,7 +212,7 @@ cursor:pointer;
 .product-card img{
 width:100%;
 height:200px;
-object-fit:cover;
+object-fit:contain;
 border-radius:16px;
 background:#f5f5f5;
 display:block;
@@ -569,7 +571,7 @@ Logout
 
 <i class="fa-solid fa-magnifying-glass"></i>
 
-<input type="text" placeholder="Search Products..." id="searchInput">
+<input type="text" placeholder="Search Products..." id="searchInput" enterkeyhint="search">
 
 </div>
 
@@ -583,13 +585,11 @@ Logout
 
 <div class="categories" id="categories"></div>
 
-<div class="category-section-title">
+<div class="category-section-title" id="sectionTitle">
 New Arrivals
 </div>
 
-<div class="products" id="newArrivalProducts"></div>
-
-<div id="allSections"></div>
+<div class="products" id="mainProducts"></div>
 
 <div class="bottom-nav">
 
@@ -735,8 +735,6 @@ menu.style.display = "block";
 
 /* BANNERS */
 
-/* BANNERS */
-
 let banners = [];
 
 let currentBanner = 0;
@@ -798,59 +796,28 @@ loadDynamicBanners(data);
 
 loadCategories(data);
 
-loadNewArrivals(data);
-
-loadSections(data);
+loadMainProducts(data,"New Arrivals");
 
 });
 
-/* CATEGORY */
+/* MAIN PRODUCTS */
 
-function loadCategories(data){
+function loadMainProducts(data,title){
 
-let categories = [...new Set(
-data
-.map(item => item.Category)
-.filter(cat => cat && cat.trim() != "")
-)];
+document.getElementById("sectionTitle").innerText = title;
 
 let html = "";
 
-categories.forEach((cat,index)=>{
+if(data.length === 0){
 
-html += `
-<div class="category-btn ${index==0 ? 'active' : ''}"
-onclick="filterCategory('${cat}',this)">
-${cat}
-</div>
-`;
+document.getElementById("mainProducts").innerHTML =
+"<div style='padding:30px;color:#666;'>No products available</div>";
 
-});
-
-document.getElementById("categories").innerHTML = html;
+return;
 
 }
 
-function filterCategory(category,el){
-
-document.querySelectorAll(".category-btn")
-.forEach(btn=>btn.classList.remove("active"));
-
-el.classList.add("active");
-
-let filtered = allProducts.filter(item => item.Category == category);
-
-loadSections(filtered);
-
-}
-
-/* NEW ARRIVALS */
-
-function loadNewArrivals(data){
-
-let html = "";
-
-data.slice(0,10).forEach(product=>{
+data.forEach(product=>{
 
 html += `
 
@@ -894,79 +861,47 @@ Add To Cart
 
 });
 
-document.getElementById("newArrivalProducts").innerHTML = html;
+document.getElementById("mainProducts").innerHTML = html;
 
 }
 
-/* LOAD PRODUCTS */
+/* CATEGORY */
 
-function loadSections(data){
+function loadCategories(data){
 
-let categories = [...new Set(data.map(item => item.Category))];
+let categories = [...new Set(
+data
+.map(item => item.Category)
+.filter(cat => cat && cat.trim() != "")
+)];
 
-let finalHTML = "";
+let html = "";
 
-categories.forEach(category=>{
+categories.forEach((cat,index)=>{
 
-let products = data.filter(item => item.Category == category);
-
-let cards = "";
-
-products.forEach(product=>{
-
-cards += `
-
-<div class="product-card"
-onclick='openPopup(${JSON.stringify(product)})'>
-
-<img src="${product['Image Url'] || ''}">
-
-<div class="product-id">
-${product['Product ID'] || ''}
+html += `
+<div class="category-btn ${index==0 ? 'active' : ''}"
+onclick="filterCategory('${cat}',this)">
+${cat}
 </div>
-
-<div class="product-name">
-${product['Product Name'] || ''}
-</div>
-
-<div class="product-price">
-₹ ${product['Price'] || ''}
-</div>
-
-<div class="product-desc">
-${product['Description1'] || ''}
-</div>
-
-<button class="cart-btn"
-onclick='event.stopPropagation();addToCart(
-"${product['Product ID']}",
-"${product['Product Name']}",
-"${product['Price']}"
-)'>
-Add To Cart
-</button>
-
-</div>
-
 `;
 
 });
 
-finalHTML += `
+document.getElementById("categories").innerHTML = html;
 
-<div class="category-section-title">
-${category}
-</div>
+}
 
-<div class="products">
-${cards}
-</div>
+function filterCategory(category,el){
 
-`;
+document.querySelectorAll(".category-btn")
+.forEach(btn=>btn.classList.remove("active"));
 
-});
+el.classList.add("active");
 
-document.getElementById("allSections").innerHTML = finalHTML;
+let filtered = allProducts.filter(item => item.Category == category);
+
+loadMainProducts(filtered,category);
 
 }
 
@@ -1022,9 +957,7 @@ let value = this.value.toLowerCase().trim();
 
 if(value === ""){
 
-loadNewArrivals(allProducts);
-
-loadSections(allProducts);
+loadMainProducts(allProducts,"New Arrivals");
 
 return;
 
@@ -1049,11 +982,10 @@ id.includes(value)
 
 });
 
-loadNewArrivals(filtered);
-
-loadSections(filtered);
+loadMainProducts(filtered,"Search Results");
 
 });
+
 document.getElementById("searchInput")
 .addEventListener("keydown", function(e){
 
@@ -1064,6 +996,7 @@ this.blur();
 }
 
 });
+
 /* POPUP */
 
 function openPopup(product){
@@ -1263,10 +1196,10 @@ let related = allProducts.filter(item =>
 item.Category == product.Category
 );
 
-loadSections(related);
+loadMainProducts(related,product.Category);
 
 window.scrollTo({
-top:document.getElementById("allSections").offsetTop,
+top:document.getElementById("mainProducts").offsetTop - 80,
 behavior:"smooth"
 });
 
