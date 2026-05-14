@@ -1281,8 +1281,48 @@ if(viewCount > 999){
 viewCount = 999;
 }
 
-document.getElementById("popupSize").innerText =
-"Size : " + (product['Size'] || 'Free Size');
+let sizeValue = (product['Size'] || 'Free Size').trim();
+
+let popupSizeHTML = "";
+
+if(
+sizeValue.toLowerCase() === "free size" ||
+sizeValue.toLowerCase() === "standard size"
+){
+
+popupSizeHTML = `
+<div class="size-btn active">
+${sizeValue}
+</div>
+`;
+
+}
+else{
+
+let availableSizes = sizeValue
+.split(",")
+.map(size => size.trim().toUpperCase());
+
+let standardSizes = ["S","M","L","XL","XXL"];
+
+standardSizes.forEach(size=>{
+
+let activeClass = availableSizes.includes(size)
+? "active"
+: "";
+
+popupSizeHTML += `
+<div class="size-btn ${activeClass}">
+${size}
+</div>
+`;
+
+});
+
+}
+
+document.getElementById("popupSize").innerHTML =
+popupSizeHTML;
 
 document.getElementById("popupDesc").innerText =
 (product['Description2'] || '') +
