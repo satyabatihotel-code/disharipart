@@ -1307,8 +1307,9 @@ ${sizeValue}
 else{
 
 let availableSizes = sizeValue
-.split(",")
-.map(size => size.trim().toUpperCase());
+.replace(/\s+/g,'')
+.toUpperCase()
+.split(",");
 
 let standardSizes = ["S","M","L","XL","XXL","XXXL"];
 
