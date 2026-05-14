@@ -1282,11 +1282,15 @@ dots[currentSlide].classList.add("active");
 }
 
 }
-history.pushState(null, null, location.href);
+/* STRONG MOBILE BACK LOCK */
 
-window.onpopstate = function () {
-history.go(1);
-};
+history.pushState(null, "", location.href);
+
+window.addEventListener("popstate", function () {
+
+history.pushState(null, "", location.href);
+
+});
 </script>
 
 </body>
