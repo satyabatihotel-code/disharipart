@@ -824,7 +824,10 @@ fetch(PRODUCT_API)
 
 .then(data=>{
 
-allProducts = data;
+allProducts = data.filter(product => 
+product['Show'] === 'Yes' || 
+product['Show'] === 'New'
+);
 
 loadDynamicBanners(data);
 
