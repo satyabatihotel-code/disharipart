@@ -858,6 +858,8 @@ html += `
 <div class="product-card"
 onclick='openPopup(${JSON.stringify(product)})'>
 
+${product['Show'] === 'New' ? '<div class="new-badge">NEW</div>' : ''}
+
 <img 
 src="${product['Image Url'] || ''}" 
 loading="lazy"
