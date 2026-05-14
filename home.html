@@ -837,9 +837,13 @@ return showValue === 'yes' || showValue === 'new';
 
 loadDynamicBanners(data);
 
-loadCategories(data);
+loadCategories(allProducts);
 
-loadMainProducts(data,"New Arrivals");
+let defaultProducts = allProducts.filter(item =>
+(item.Category || '').trim().toLowerCase() === 'new arrivals'
+);
+
+loadMainProducts(defaultProducts,"New Arrivals");
 
 });
 
