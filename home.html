@@ -824,10 +824,16 @@ fetch(PRODUCT_API)
 
 .then(data=>{
 
-allProducts = data.filter(product => 
-product['Show'] === 'Yes' || 
-product['Show'] === 'New'
-);
+allProducts = data.filter(product => {
+
+let showValue = (product['Show'] || '')
+.toString()
+.trim()
+.toLowerCase();
+
+return showValue === 'yes' || showValue === 'new';
+
+});
 
 loadDynamicBanners(data);
 
