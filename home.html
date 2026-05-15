@@ -1142,12 +1142,12 @@ document.getElementById("popupName").innerText = product["Product Name"];
 
 let price = Number(product["Price"]) || 0;
 let todayOffer = Number(product["Today Offer"]) || 0;
+let stock = (product["Stock"] || "").toLowerCase();
+let isInStock = stock == "yes" || stock == "in stock";
 
 if(todayOffer > 0 && price > 0){
 
 let finalPrice = Math.max(price - todayOffer, 0);
-
-
 let discountPercent = Math.round((todayOffer / price) * 100);
 
 document.getElementById("popupPrice").style.display = "none";
@@ -1161,19 +1161,37 @@ document.getElementById("offerSection").innerHTML = `
 `;
 
 }
+else if(globalSale && isInStock && price > 0){
+
+let discountPercent = globalSale.percent;
+let finalPrice = Math.round(price - ((price * discountPercent) / 100));
+
+document.getElementById("popupPrice").style.display = "none";
+
+document.getElementById("offerSection").innerHTML = `
+<div class="offer-box">
+<div class="old-price">₹ ${price}</div>
+<div class="offer-price">₹ ${finalPrice}</div>
+<div class="offer-tag">${globalSale.label} · ${discountPercent}% OFF</div>
+</div>
+`;
+
+}
 else{
+
 document.getElementById("offerSection").innerHTML = "";
 document.getElementById("popupPrice").style.display = "block";
 document.getElementById("popupPrice").innerText = "₹ " + price;
+
 }
 
-let stock = (product["Stock"] || "").toLowerCase();
-if(stock == "yes" || stock == "in stock"){
+if(isInStock){
 document.getElementById("popupStock").innerHTML = `<div class="popup-stock in-stock">In Stock</div>`;
 }
 else{
 document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-stock">Out Of Stock</div>`;
 }
+
 
 let productSeed = (product["Product ID"] || Math.random().toString()).replace(/\D/g,"");
 if(productSeed == ""){
