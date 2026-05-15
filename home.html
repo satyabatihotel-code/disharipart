@@ -937,6 +937,8 @@ return null;
 
 function renderStore(data, fromCache){
 allProducts = prepareVisibleProducts(data);
+globalSale = findGlobalSale(data);
+ 
 loadDynamicBanners(data);
 loadCategories(allProducts);
 
