@@ -1075,7 +1075,8 @@ function openPopup(product){
 let reviewHTML = "";
 let shuffledReviews = [...reviewTemplates].sort(() => 0.5 - Math.random()).slice(0,3);
 shuffledReviews.forEach(review=>{
-reviewHTML += `<div class="review">${review}</div>`;
+reviewHTML += `<div class="review">&#10004; ${review}</div>`;
+
 });
 document.getElementById("reviewBox").innerHTML = reviewHTML;
 
