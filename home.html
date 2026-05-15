@@ -1119,7 +1119,8 @@ let todayOffer = Number(product["Today Offer"]) || 0;
 
 if(todayOffer > 0 && price > 0){
 
-let finalPrice = price - todayOffer;
+let finalPrice = Math.max(price - todayOffer, 0);
+
 
 let discountPercent = Math.round((todayOffer / price) * 100);
 
