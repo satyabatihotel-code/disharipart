@@ -1167,7 +1167,8 @@ popupSizeHTML += `<div class="size-btn ${activeClass}">${size}</div>`;
 document.getElementById("popupSize").innerHTML = popupSizeHTML;
 document.getElementById("popupDesc").innerText =
 (product["Description2"] || "") +
-"\n\nFree Shipping" +
+"\n\nFree Shipping on Prepaid" +
+
 "\n\nToday " + viewCount + " people viewing this product";
 
 document.getElementById("moreBtn").onclick = function(){
