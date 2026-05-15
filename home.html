@@ -851,10 +851,12 @@ let bannerHTML = "";
 
 banners.forEach(img=>{
 bannerHTML += `
-<img 
+<img
 src="${img}"
+class="banner-img"
 fetchpriority="high"
 loading="eager"
+decoding="async"
 >
 `;
 });
