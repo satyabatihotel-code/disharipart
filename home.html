@@ -1155,21 +1155,57 @@ productSeed = Math.floor(Math.random()*9999);
 }
 
 let now = new Date();
-let dateSeed = now.getDate() + now.getMonth() + 1 + now.getFullYear();
-let trafficMultiplier = 1;
-let popupHour = now.getHours();
-if(popupHour >= 0 && popupHour < 6){trafficMultiplier = 0.7;}
-else if(popupHour >= 6 && popupHour < 10){trafficMultiplier = 1;}
-else if(popupHour >= 10 && popupHour < 13){trafficMultiplier = 1.4;}
-else if(popupHour >= 13 && popupHour < 17){trafficMultiplier = 1.8;}
-else if(popupHour >= 17 && popupHour < 21){trafficMultiplier = 2.4;}
-else{trafficMultiplier = 1.5;}
 
-let baseViews = (parseInt(productSeed) * dateSeed * 7) % 420;
-let viewCount = Math.floor(102 + (baseViews * trafficMultiplier));
-if(viewCount > 999){
-viewCount = 999;
+let popupHour = now.getHours();
+
+let viewMin = 10;
+let viewMax = 60;
+
+if(popupHour >= 0 && popupHour < 2){
+viewMin = 10;
+viewMax = 60;
 }
+else if(popupHour >= 2 && popupHour < 6){
+viewMin = 1;
+viewMax = 15;
+}
+else if(popupHour >= 6 && popupHour < 9){
+viewMin = 50;
+viewMax = 120;
+}
+else if(popupHour >= 9 && popupHour < 12){
+viewMin = 700;
+viewMax = 900;
+}
+else if(popupHour >= 12 && popupHour < 14){
+viewMin = 200;
+viewMax = 450;
+}
+else if(popupHour >= 14 && popupHour < 16){
+viewMin = 900;
+viewMax = 1100;
+}
+else if(popupHour >= 16 && popupHour < 18){
+viewMin = 350;
+viewMax = 470;
+}
+else if(popupHour >= 18 && popupHour < 20){
+viewMin = 900;
+viewMax = 1200;
+}
+else if(popupHour >= 20 && popupHour < 22){
+viewMin = 1400;
+viewMax = 2200;
+}
+else if(popupHour >= 22 && popupHour < 24){
+viewMin = 1000;
+viewMax = 1300;
+}
+
+let viewCount = Math.floor(
+viewMin + (Math.random() * (viewMax - viewMin + 1))
+);
+
 
 let sizeValue = (product["Size"] || "Free Size").trim();
 let popupSizeHTML = "";
