@@ -912,6 +912,28 @@ let showValue = (product["Show"] || "").toString().trim().toLowerCase();
 return showValue === "yes" || showValue === "new";
 });
 }
+function findGlobalSale(data){
+let saleColumns = [
+{key:"Big Day Sale", label:"Big Day Sale"},
+{key:"Festive Discount", label:"Festive Discount"},
+{key:"Flat Discount", label:"Flat Discount"}
+];
+
+for(let sale of saleColumns){
+
+let rowWithSale = data.find(item => Number(item[sale.key]) > 0);
+
+if(rowWithSale){
+return {
+label:sale.label,
+percent:Number(rowWithSale[sale.key])
+};
+}
+
+}
+
+return null;
+}
 
 function renderStore(data, fromCache){
 allProducts = prepareVisibleProducts(data);
