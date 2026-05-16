@@ -790,6 +790,7 @@ let allProducts = [];
 let globalSale = null;
 let currentProduct = null;
 let currentSlide = 0;
+let viewingTimer = null;
 
 let banners = [];
 let currentBanner = 0;
@@ -914,6 +915,7 @@ let showValue = (product["Show"] || "").toString().trim().toLowerCase();
 return showValue === "yes" || showValue === "new";
 });
 }
+
 function findGlobalSale(data){
 let saleColumns = [
 {key:"Big Day Sale", label:"Big Day Sale"},
@@ -1112,6 +1114,157 @@ const reviewTemplates = [
 "Looks even better in real"
 ];
 
+function getProductPriceForViewer(product){
+let priceText = String(product["Price"] || "0").replace(/[^\d.]/g,"");
+let price = Number(priceText) || 0;
+return price;
+}
+
+function getViewerSettingsByPrice(price){
+if(price < 200){
+return {
+min:1,
+max:250,
+step:5
+};
+}
+
+if(price >= 200 && price <= 500){
+return {
+min:80,
+max:650,
+step:9
+};
+}
+
+if(price >= 501 && price <= 800){
+return {
+min:180,
+max:1100,
+step:14
+};
+}
+
+return {
+min:300,
+max:1800,
+step:22
+};
+}
+
+function getShoppingTimePower(){
+let hour = new Date().getHours();
+
+if(hour >= 2 && hour < 6){
+return 0.25;
+}
+
+if(hour >= 6 && hour < 9){
+return 0.45;
+}
+
+if(hour >= 9 && hour < 12){
+return 0.65;
+}
+
+if(hour >= 12 && hour < 16){
+return 0.75;
+}
+
+if(hour >= 16 && hour < 20){
+return 0.9;
+}
+
+if(hour >= 20 && hour < 23){
+return 1;
+}
+
+return 0.6;
+}
+
+function hashText(text){
+let hash = 0;
+text = String(text || "");
+
+for(let i = 0; i < text.length; i++){
+hash = ((hash << 5) - hash) + text.charCodeAt(i);
+hash = hash & hash;
+}
+
+return Math.abs(hash);
+}
+
+function seededRandom(seed){
+let value = Math.sin(seed) * 10000;
+return value - Math.floor(value);
+}
+
+function getStartingViewerCount(product){
+let price = getProductPriceForViewer(product);
+let settings = getViewerSettingsByPrice(price);
+
+let productKey =
+(product["Product ID"] || "") +
+(product["Product Name"] || "") +
+(product["Category"] || "");
+
+let timeBlock = Math.floor(Date.now() / (3 * 60 * 1000));
+let seed = hashText(productKey + timeBlock);
+
+let randomValue = seededRandom(seed);
+let timePower = getShoppingTimePower();
+
+let adjustedRandom = (randomValue * 0.65) + (timePower * 0.35);
+
+let count = Math.floor(
+settings.min + adjustedRandom * (settings.max - settings.min)
+);
+
+return {
+count:count,
+settings:settings
+};
+}
+
+function startViewingCounter(product){
+if(viewingTimer){
+clearInterval(viewingTimer);
+}
+
+let viewerData = getStartingViewerCount(product);
+let viewCount = viewerData.count;
+let settings = viewerData.settings;
+
+function updateViewingText(){
+document.getElementById("popupDesc").innerText =
+(product["Description2"] || "") +
+"\n\nFree Shipping on Prepaid" +
+"\n\nNow " + viewCount + " people viewing this product";
+}
+
+updateViewingText();
+
+viewingTimer = setInterval(function(){
+let movement = Math.floor(Math.random() * (settings.step * 2 + 1)) - settings.step;
+
+if(movement === 0){
+movement = 1;
+}
+
+viewCount = viewCount + movement;
+
+if(viewCount < settings.min){
+viewCount = settings.min + Math.floor(Math.random() * settings.step);
+}
+
+if(viewCount > settings.max){
+viewCount = settings.max - Math.floor(Math.random() * settings.step);
+}
+
+updateViewingText();
+},4000);
+}
+
 function openPopup(product){
 let reviewHTML = "";
 let shuffledReviews = [...reviewTemplates].sort(() => 0.5 - Math.random()).slice(0,3);
@@ -1195,64 +1348,6 @@ document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-s
 }
 
 
-let productSeed = (product["Product ID"] || Math.random().toString()).replace(/\D/g,"");
-if(productSeed == ""){
-productSeed = Math.floor(Math.random()*9999);
-}
-
-let now = new Date();
-
-let popupHour = now.getHours();
-
-let viewMin = 10;
-let viewMax = 60;
-
-if(popupHour >= 0 && popupHour < 2){
-viewMin = 10;
-viewMax = 60;
-}
-else if(popupHour >= 2 && popupHour < 6){
-viewMin = 1;
-viewMax = 15;
-}
-else if(popupHour >= 6 && popupHour < 9){
-viewMin = 50;
-viewMax = 120;
-}
-else if(popupHour >= 9 && popupHour < 12){
-viewMin = 700;
-viewMax = 900;
-}
-else if(popupHour >= 12 && popupHour < 14){
-viewMin = 200;
-viewMax = 450;
-}
-else if(popupHour >= 14 && popupHour < 16){
-viewMin = 900;
-viewMax = 1100;
-}
-else if(popupHour >= 16 && popupHour < 18){
-viewMin = 350;
-viewMax = 470;
-}
-else if(popupHour >= 18 && popupHour < 20){
-viewMin = 900;
-viewMax = 1200;
-}
-else if(popupHour >= 20 && popupHour < 22){
-viewMin = 1400;
-viewMax = 2200;
-}
-else if(popupHour >= 22 && popupHour < 24){
-viewMin = 1000;
-viewMax = 1300;
-}
-
-let viewCount = Math.floor(
-viewMin + (Math.random() * (viewMax - viewMin + 1))
-);
-
-
 let sizeValue = (product["Size"] || "Free Size").trim();
 let popupSizeHTML = "";
 if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
@@ -1268,11 +1363,7 @@ popupSizeHTML += `<div class="size-btn ${activeClass}">${size}</div>`;
 }
 
 document.getElementById("popupSize").innerHTML = popupSizeHTML;
-document.getElementById("popupDesc").innerText =
-(product["Description2"] || "") +
-"\n\nFree Shipping on Prepaid" +
-
-"\n\n" + viewCount + " people are viewing this product now";
+startViewingCounter(product);
 
 
 document.getElementById("moreBtn").onclick = function(){
@@ -1294,6 +1385,11 @@ document.body.style.overflow = "hidden";
 function closePopup(){
 document.getElementById("popup").classList.remove("active");
 document.body.style.overflow = "auto";
+
+if(viewingTimer){
+clearInterval(viewingTimer);
+viewingTimer = null;
+}
 }
 
 function changeSlide(direction){
