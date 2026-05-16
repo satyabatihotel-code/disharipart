@@ -1053,7 +1053,7 @@ src="${imageUrl}"
 loading="${index < 4 ? "eager" : "lazy"}"
 fetchpriority="${index < 4 ? "high" : "auto"}"
 decoding="async"
-onload="imageLoaded(this)"
+onload="imageLoaded(this)" onerror="this.style.display='none'"
 alt="${product["Product Name"] || "Dishari product"}"
 >
 <div class="product-id">${product["Product ID"] || ""}</div>
