@@ -726,22 +726,22 @@ return `
 
 let checkoutToastTimer = null;
 
-function showCheckoutToast(){
-let toast = document.getElementById("checkoutToast");
+function showCheckoutButtonMessage(){
+let btn = document.getElementById("checkoutBtn");
 
-if(!toast){
+if(!btn){
 return;
 }
 
-toast.classList.add("show");
+btn.innerHTML = `Select item to checkout`;
 
 if(checkoutToastTimer){
 clearTimeout(checkoutToastTimer);
 }
 
 checkoutToastTimer = setTimeout(function(){
-toast.classList.remove("show");
-},4000);
+btn.innerHTML = `Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>`;
+},2000);
 }
 
 function goToCheckout(){
@@ -749,7 +749,7 @@ let cart = normalizeCart();
 let selectedItems = cart.filter(item => item.selected !== false);
 
 if(!selectedItems.length){
-showCheckoutToast();
+showCheckoutButtonMessage();
 return;
 }
 
@@ -867,7 +867,7 @@ cartHTML += `
 </div>
 </div>
 
-<button class="checkout-btn" onclick="goToCheckout()">
+<button class="checkout-btn" id="checkoutBtn" onclick="goToCheckout()">
 Proceed to Checkout
 <i class="fa-solid fa-arrow-right"></i>
 </button>
