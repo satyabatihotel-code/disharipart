@@ -109,6 +109,31 @@ gap:12px;
 align-items:center;
 box-shadow:0 8px 22px rgba(0,0,0,0.06);
 border:1px solid rgba(255,255,255,0.8);
+position:relative;
+}
+
+.select-circle{
+position:absolute;
+top:12px;
+left:12px;
+width:30px;
+height:30px;
+border-radius:50%;
+border:2px solid #1877F2;
+background:white;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:13px;
+z-index:2;
+cursor:pointer;
+box-shadow:0 5px 12px rgba(0,0,0,0.12);
+}
+
+.select-circle.selected{
+background:#1877F2;
+color:white;
 }
 
 .cart-img{
@@ -344,6 +369,36 @@ opacity:0.5;
 cursor:not-allowed;
 }
 
+.checkout-toast{
+position:fixed;
+left:50%;
+bottom:92px;
+transform:translate(-50%,30px);
+width:calc(100% - 28px);
+max-width:430px;
+background:#1877F2;
+border-radius:18px;
+padding:13px 15px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+box-shadow:0 10px 28px rgba(24,119,242,0.22);
+z-index:6000;
+opacity:0;
+pointer-events:none;
+transition:0.35s ease;
+color:white;
+font-size:14px;
+line-height:20px;
+font-weight:800;
+}
+
+.checkout-toast.show{
+opacity:1;
+transform:translate(-50%,0);
+}
+
 .empty-cart{
 background:white;
 border-radius:24px;
@@ -491,6 +546,10 @@ font-size:16px;
 <div id="cartContent"></div>
 </div>
 
+<div class="checkout-toast" id="checkoutToast">
+Select item to checkout
+</div>
+
 <div class="bottom-nav">
 <div class="nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></div>
 <div class="nav-item" onclick="window.location.href='products.html'"><i class="fa-solid fa-box"></i><span>Product</span></div>
@@ -559,6 +618,7 @@ let finalPrice = cleanPrice(item.finalPrice || item.sellingPrice || item.offerPr
 let image = item.image || item["Image Url"] || item.imageUrl || "";
 let size = item.size || item.selectedSize || "Free Size";
 let quantity = Number(item.quantity) || 1;
+let selected = item.selected !== false;
 
 if(!finalPrice){
 finalPrice = price;
@@ -573,6 +633,7 @@ let existing = merged.find(product => product.key === key);
 
 if(existing){
 existing.quantity += quantity;
+existing.selected = existing.selected || selected;
 }
 else{
 merged.push({
@@ -583,7 +644,8 @@ price:price,
 finalPrice:finalPrice,
 image:image,
 size:size,
-quantity:quantity
+quantity:quantity,
+selected:selected
 });
 }
 });
@@ -601,6 +663,17 @@ function updateCartCount(cart){
 let currentCart = cart || getRawCart();
 let count = currentCart.reduce((total,item)=>total + (Number(item.quantity) || 1),0);
 document.getElementById("cartCount").innerText = count;
+}
+
+function toggleSelected(index){
+let cart = normalizeCart();
+
+if(!cart[index]){
+return;
+}
+
+cart[index].selected = cart[index].selected === false;
+saveCart(cart);
 }
 
 function changeQuantity(index,change){
@@ -648,6 +721,39 @@ return `
 `;
 }
 
+let checkoutToastTimer = null;
+
+function showCheckoutToast(){
+let toast = document.getElementById("checkoutToast");
+
+if(!toast){
+return;
+}
+
+toast.classList.add("show");
+
+if(checkoutToastTimer){
+clearTimeout(checkoutToastTimer);
+}
+
+checkoutToastTimer = setTimeout(function(){
+toast.classList.remove("show");
+},4000);
+}
+
+function goToCheckout(){
+let cart = normalizeCart();
+let selectedItems = cart.filter(item => item.selected !== false);
+
+if(!selectedItems.length){
+showCheckoutToast();
+return;
+}
+
+localStorage.setItem("checkoutItems", JSON.stringify(selectedItems));
+window.location.href = "checkout.html";
+}
+
 function renderCart(){
 let cart = normalizeCart();
 updateCartCount(cart);
@@ -682,11 +788,16 @@ let finalPrice = cleanPrice(item.finalPrice || item.price);
 let itemMrp = price * quantity;
 let itemTotal = finalPrice * quantity;
 
+if(item.selected !== false){
 totalMrp += itemMrp;
 subtotal += itemTotal;
+}
 
 cartHTML += `
 <div class="cart-card">
+<div class="select-circle ${item.selected !== false ? 'selected' : ''}" onclick="toggleSelected(${index})">
+${item.selected !== false ? '<i class="fa-solid fa-check"></i>' : ''}
+</div>
 ${imageBlock(item)}
 
 <div class="cart-info">
@@ -753,7 +864,7 @@ cartHTML += `
 </div>
 </div>
 
-<button class="checkout-btn" onclick="window.location.href='checkout.html'">
+<button class="checkout-btn" onclick="goToCheckout()">
 Proceed to Checkout
 <i class="fa-solid fa-arrow-right"></i>
 </button>
