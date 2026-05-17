@@ -1176,7 +1176,25 @@ cart.push({id,name,price});
 localStorage.setItem("cart",JSON.stringify(cart));
 updateCartCount();
 }
+let sizeToastTimer = null;
 
+function showSizeToast(){
+let toast = document.getElementById("sizeToast");
+
+if(!toast){
+return;
+}
+
+toast.classList.add("show");
+
+if(sizeToastTimer){
+clearTimeout(sizeToastTimer);
+}
+
+sizeToastTimer = setTimeout(function(){
+toast.classList.remove("show");
+},6000);
+}
 function popupAddToCart(){
 if(!currentProduct){
 return;
