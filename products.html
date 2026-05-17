@@ -1563,17 +1563,31 @@ else{
 document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-stock">Out Of Stock</div>`;
 }
 
+selectedPopupSize = "";
+
 let sizeValue = (product["Size"] || "Free Size").trim();
 let popupSizeHTML = "";
-if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
-popupSizeHTML = `<div class="size-btn active">${sizeValue}</div>`;
+let standardSizes = ["S","M","L","XL","XXL","XXXL"];
+let normalizedSizeValue = sizeValue.toLowerCase();
+
+if(normalizedSizeValue === "free size" || normalizedSizeValue === "standard"){
+selectedPopupSize = sizeValue;
+popupSizeHTML = `<div class="size-btn selected" onclick="selectPopupSize('${sizeValue}',this)">${sizeValue}</div>`;
 }
 else{
-let availableSizes = sizeValue.replace(/\s+/g,"").toUpperCase().split(",");
-let standardSizes = ["S","M","L","XL","XXL","XXXL"];
+let availableSizes = sizeValue
+.toUpperCase()
+.replace(/,/g," ")
+.split(/\s+/)
+.filter(size => size);
+
 standardSizes.forEach(size=>{
-let activeClass = availableSizes.includes(size) ? "active" : "";
-popupSizeHTML += `<div class="size-btn ${activeClass}">${size}</div>`;
+if(availableSizes.includes(size)){
+popupSizeHTML += `<div class="size-btn available" onclick="selectPopupSize('${size}',this)">${size}</div>`;
+}
+else{
+popupSizeHTML += `<div class="size-btn unavailable">${size}</div>`;
+}
 });
 }
 
