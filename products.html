@@ -1130,9 +1130,58 @@ updateCartCount();
 }
 
 function popupAddToCart(){
-if(currentProduct){
-addToCart(currentProduct["Product ID"], currentProduct["Product Name"], currentProduct["Price"]);
+if(!currentProduct){
+return;
 }
+
+if(!selectedPopupSize){
+alert("Please select a size");
+return;
+}
+
+let price = Number(currentProduct["Price"]) || 0;
+let todayOffer = Number(currentProduct["Today Offer"]) || 0;
+let stock = (currentProduct["Stock"] || "").toLowerCase();
+let isInStock = stock == "yes" || stock == "in stock";
+let finalPrice = price;
+
+if(todayOffer > 0 && price > 0){
+finalPrice = Math.max(price - todayOffer, 0);
+}
+else if(globalSale && isInStock && price > 0){
+finalPrice = Math.round(price - ((price * globalSale.percent) / 100));
+}
+
+let imageUrl = normalizeImageUrl(currentProduct["Image Url"] || "");
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+let cartItem = {
+id: currentProduct["Product ID"] || "",
+name: currentProduct["Product Name"] || "",
+price: price,
+finalPrice: finalPrice,
+image: imageUrl,
+size: selectedPopupSize,
+quantity: 1
+};
+
+let existing = cart.find(item =>
+(item.id || "") === cartItem.id &&
+(item.size || "Free Size") === cartItem.size
+);
+
+if(existing){
+existing.quantity = (Number(existing.quantity) || 1) + 1;
+}
+else{
+cart.push(cartItem);
+}
+
+localStorage.setItem("cart", JSON.stringify(cart));
+updateCartCount();
+
+window.location.href = "cart.html";
 }
 
 function updateCartCount(){
