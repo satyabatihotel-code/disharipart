@@ -1260,14 +1260,11 @@ status:"New Order"
 
 showProcessing();
 
-try{
-await sendOrderToSheet(order);
-}
-catch(error){
-showCartToast("Order sheet slow, continue payment");
-}
+sendOrderToSheet(order).catch(function(){});
 
+setTimeout(function(){
 showOrderSuccess(order);
+},2000);
 }
 
 function goToCheckout(){
