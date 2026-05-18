@@ -1235,7 +1235,7 @@ modal.innerHTML = `
 openCheckoutOverlay();
 }
 
-async function confirmOrder(){
+function confirmOrder(){
 let address = getSavedAddress();
 let items = selectedCartItems();
 
@@ -1260,11 +1260,14 @@ status:"New Order"
 
 showProcessing();
 
-sendOrderToSheet(order).catch(function(){});
-
 setTimeout(function(){
 showOrderSuccess(order);
 },2000);
+
+try{
+sendOrderToSheet(order);
+}
+catch(error){}
 }
 
 function goToCheckout(){
