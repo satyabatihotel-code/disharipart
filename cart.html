@@ -1190,101 +1190,49 @@ hour12:true
 });
 }
 
-function buildWhatsAppMessage(order){
-let lines = [];
+function openUpiPayment(amount,orderId){
+let upiUrl =
+"upi://pay" +
+"?pa=" + encodeURIComponent(UPI_ID) +
+"&pn=" + encodeURIComponent(UPI_NAME) +
+"&am=" + encodeURIComponent(Math.round(Number(amount) || 0)) +
+"&cu=INR" +
+"&tn=" + encodeURIComponent("Dishari Order " + orderId);
 
-lines.push("New Order from " + order.customer.fullName);
-lines.push("");
-lines.push("Order ID: " + order.orderId);
-lines.push("Date Time: " + order.dateTime);
-lines.push("");
-lines.push("Customer Details:");
-lines.push("Name: " + order.customer.fullName);
-lines.push("Phone: " + order.customer.phone);
-lines.push("Village: " + order.customer.village);
-lines.push("Police Station: " + order.customer.policeStation);
-lines.push("District: " + order.customer.district);
-lines.push("Pin Code: " + order.customer.pinCode);
-lines.push("Landmark: " + order.customer.landmark);
-lines.push("");
-lines.push("Product Details:");
-
-order.items.forEach(item=>{
-lines.push("");
-lines.push("Product ID: " + (item.id || ""));
-lines.push("Product Name: " + item.name);
-lines.push("Size: " + (item.size || "Free Size"));
-lines.push("Quantity: " + item.quantity);
-lines.push("Price: " + money(cleanPrice(item.finalPrice || item.price) * (Number(item.quantity) || 1)));
-});
-
-lines.push("");
-lines.push("Shipping: Free");
-lines.push("");
-lines.push("Total Order Value: " + money(order.orderTotal));
-lines.push("");
-lines.push("Pay now for free shipping.");
-lines.push("UPI QR:");
-lines.push(UPI_QR_URL);
-lines.push("");
-lines.push("Thank you for shopping with Dishari.");
-
-return lines.join("\n");
+window.location.href = upiUrl;
 }
 
-async function sendOrderToSheet(order){
-let payload = {
-orderId:order.orderId,
-dateTime:order.dateTime,
-customerName:order.customer.fullName,
-phoneNumber:order.customer.phone,
-village:order.customer.village,
-policeStation:order.customer.policeStation,
-district:order.customer.district,
-pinCode:order.customer.pinCode,
-landmark:order.customer.landmark,
-productIds:order.items.map(item=>item.id || "").join(", "),
-productNames:order.items.map(item=>item.name || "").join(", "),
-sizes:order.items.map(item=>item.size || "Free Size").join(", "),
-quantities:order.items.map(item=>item.quantity || 1).join(", "),
-productPrices:order.items.map(item=>money(cleanPrice(item.finalPrice || item.price) * (Number(item.quantity) || 1))).join(", "),
-totalMrp:money(order.totalMrp),
-discount:money(order.discount),
-shipping:"Free",
-orderTotal:money(order.orderTotal),
-status:"New Order"
-};
-
-await fetch(ORDER_API, {
-method:"POST",
-mode:"no-cors",
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-body:JSON.stringify(payload)
-});
-}
-
-function removeSelectedItemsFromCart(){
-let cart = normalizeCart();
-let remaining = cart.filter(item => item.selected === false);
-localStorage.setItem("cart", JSON.stringify(remaining));
-}
-
-function openWhatsApp(order){
-let message = buildWhatsAppMessage(order);
-let whatsappUrl = "https://wa.me/" + SELLER_WHATSAPP + "?text=" + encodeURIComponent(message);
-
+function showOrderSuccess(order){
 removeSelectedItemsFromCart();
 renderCart();
 
-setTimeout(function(){
-window.location.href = whatsappUrl;
-},500);
+let modal = document.getElementById("checkoutModal");
 
-setTimeout(function(){
-window.open(whatsappUrl, "_blank");
-},1300);
+modal.innerHTML = `
+<div class="processing-box">
+<div style="width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#1877F2,#0f6be8);color:white;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;box-shadow:0 10px 22px rgba(24,119,242,0.30);">
+<i class="fa-solid fa-check"></i>
+</div>
+
+<h3>Order successfully submitted</h3>
+<p>Your order is saved. Pay now to confirm free shipping.</p>
+
+<div style="margin-top:16px;background:white;border:1px solid #dcecff;border-radius:20px;padding:16px;box-shadow:0 8px 20px rgba(24,119,242,0.06);">
+<div style="font-size:13px;color:#4d5662;margin-bottom:6px;">Order ID</div>
+<div style="font-size:15px;font-weight:900;color:#111;">${order.orderId}</div>
+
+<div style="font-size:13px;color:#4d5662;margin-top:14px;margin-bottom:6px;">Payable Amount</div>
+<div style="font-size:28px;font-weight:900;color:#1877F2;">${money(order.orderTotal)}</div>
+</div>
+
+<div class="modal-actions">
+<button class="secondary-action" onclick="closeCheckoutOverlay()">Later</button>
+<button class="primary-action" onclick="openUpiPayment(${order.orderTotal},'${order.orderId}')">Pay Now</button>
+</div>
+</div>
+`;
+
+openCheckoutOverlay();
 }
 
 async function confirmOrder(){
