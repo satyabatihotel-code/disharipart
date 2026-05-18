@@ -1265,11 +1265,19 @@ status:"New Order"
 showProcessing();
 
 setTimeout(function(){
+try{
 showOrderSuccess(order);
+}
+catch(error){
+closeCheckoutOverlay();
+}
 },2000);
 
 if(typeof sendOrderToSheet === "function"){
-sendOrderToSheet(order).catch(function(){});
+try{
+sendOrderToSheet(order);
+}
+catch(error){}
 }
 }
 
