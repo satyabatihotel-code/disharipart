@@ -1191,13 +1191,18 @@ hour12:true
 }
 
 function openUpiPayment(amount,orderId){
+let finalAmount = Math.round(Number(amount) || 0);
+
 let upiUrl =
 "upi://pay" +
 "?pa=" + encodeURIComponent(UPI_ID) +
-"&pn=" + encodeURIComponent(UPI_NAME) +
-"&am=" + encodeURIComponent(Math.round(Number(amount) || 0)) +
-"&cu=INR" +
-"&tn=" + encodeURIComponent("Dishari Order " + orderId);
+"&pn=" + encodeURIComponent("TRIPARNA TALUKDAR") +
+"&mc=0000" +
+"&tid=" + encodeURIComponent(orderId) +
+"&tr=" + encodeURIComponent(orderId) +
+"&tn=" + encodeURIComponent("Dishari Order " + orderId) +
+"&am=" + encodeURIComponent(finalAmount) +
+"&cu=INR";
 
 window.location.href = upiUrl;
 }
