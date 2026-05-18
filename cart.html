@@ -1201,7 +1201,11 @@ let upiUrl =
 
 window.location.href = upiUrl;
 }
-
+function removeSelectedItemsFromCart(){
+let cart = normalizeCart();
+let remaining = cart.filter(item => item.selected === false);
+localStorage.setItem("cart", JSON.stringify(remaining));
+}
 function showOrderSuccess(order){
 removeSelectedItemsFromCart();
 renderCart();
@@ -1264,10 +1268,9 @@ setTimeout(function(){
 showOrderSuccess(order);
 },2000);
 
-try{
-sendOrderToSheet(order);
+if(typeof sendOrderToSheet === "function"){
+sendOrderToSheet(order).catch(function(){});
 }
-catch(error){}
 }
 
 function goToCheckout(){
