@@ -866,6 +866,25 @@ Need Help? WhatsApp Us
 </button>
 `;
 }
+function openSupportWhatsApp(){
+let overlay = document.getElementById("connectOverlay");
+overlay.classList.add("show");
+
+let whatsappUrl = "https://wa.me/" + SUPPORT_WHATSAPP;
+
+setTimeout(function(){
+window.location.href = whatsappUrl;
+},500);
+}
+  
+  
+  
+  
+  
+  
+  
+  
+  
 function showEmpty(){
 document.getElementById("trackResult").innerHTML = `
 <div class="empty-card">
