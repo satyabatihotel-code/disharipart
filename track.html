@@ -921,11 +921,8 @@ btn.innerHTML = `<i class="fa-solid fa-location-dot"></i> Track Order`;
 }
 }
 
-let savedPhone = localStorage.getItem("dishariTrackPhone");
-if(savedPhone){
-document.getElementById("trackPhone").value = savedPhone;
-setTimeout(trackOrder,500);
-}
+document.getElementById("trackPhone").value = "";
+localStorage.removeItem("dishariTrackPhone");
 </script>
 
 </body>
