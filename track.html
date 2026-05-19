@@ -860,13 +860,12 @@ return html;
 
 function supportButton(){
 return `
-<a class="support-btn" href="https://wa.me/${SUPPORT_WHATSAPP}" target="_blank">
+<button class="support-btn" onclick="openSupportWhatsApp()" type="button">
 <i class="fa-brands fa-whatsapp"></i>
 Need Help? WhatsApp Us
-</a>
+</button>
 `;
 }
-
 function showEmpty(){
 document.getElementById("trackResult").innerHTML = `
 <div class="empty-card">
