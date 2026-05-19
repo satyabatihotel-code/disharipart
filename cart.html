@@ -759,7 +759,7 @@ Select item to checkout
 <script>
 const ORDER_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
 const SELLER_WHATSAPP = "919836697502";
-const UPI_QR_URL = "https://res.cloudinary.com/daxayonzg/image/upload/f_auto,q_auto/WhatsApp_Image_2026-05-14_at_11.04.38_AM_w5qkz5";
+const UPI_QR_URL = "https://tinyurl.com/dishari-pay";
 
 let user = localStorage.getItem("user");
 if(!user){
@@ -1223,11 +1223,10 @@ lines.push("Shipping: Free");
 lines.push("");
 lines.push("Total Order Value: " + money(order.orderTotal));
 lines.push("");
-lines.push("Pay now for free shipping");
-lines.push("UPI QR : click and pay");
+lines.push("Pay here:");
 lines.push(UPI_QR_URL);
 lines.push("");
-lines.push("*IMPORTANT: SEND PAYMENT SCREENSHOT FOR CONFIRMATION*");
+lines.push("Please pay " + money(order.orderTotal) + " and send payment screenshot for confirmation.");
 lines.push("");
 lines.push("Thank you for shopping with Dishari");
 
