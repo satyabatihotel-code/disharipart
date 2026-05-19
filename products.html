@@ -1724,7 +1724,7 @@ if(availableSizes.includes(size)){
 popupSizeHTML += `<div class="size-btn available" onclick="selectPopupSize('${size}',this)">${size}</div>`;
 }
 else{
-popupSizeHTML += `<div class="size-btn unavailable">${size}</div>`;
+popupSizeHTML += `<div class="size-btn unavailable" onclick="clearTextSelection()">${size}</div>`;
 }
 });
 }
