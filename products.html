@@ -1592,7 +1592,17 @@ return;
 let firstDelay = 20000 + Math.floor(Math.random() * 5000);
 orderToastTimer = setTimeout(showOrderToast, firstDelay);
 }
-function selectPopupSize(size,el){
+function clearTextSelection(){
+if(window.getSelection){
+window.getSelection().removeAllRanges();
+}
+}
+  
+  
+  
+  
+  function selectPopupSize(size,el){
+clearTextSelection();    
 if(!el.classList.contains("available") && !el.classList.contains("selected")){
 return;
 }
