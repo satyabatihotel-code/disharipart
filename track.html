@@ -638,7 +638,9 @@ Track Order
 <script>
 const ORDER_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec?type=orders";
 const SUPPORT_WHATSAPP = "919836697502";
-
+const SELLER_PIN = "7044";
+let trackTapCount = 0;
+let trackTapTimer = null;
 let user = localStorage.getItem("user");
 if(!user){
 window.location.href = "login.html";
