@@ -743,9 +743,15 @@ return "Order Processing";
 function statusClass(status){
 let normalized = normalizeStatus(status);
 
+
+if(normalized === "Order Processing"){
+return "status-processing";
+}
+
 if(normalized === "Payment Pending"){
 return "status-payment";
 }
+
 
 if(normalized === "Order Confirmed"){
 return "status-confirmed";
@@ -767,7 +773,7 @@ if(normalized === "Cancelled"){
 return "status-cancelled";
 }
 
-return "status-payment";
+return "status-processing";
 }
 
 function getOrderField(order,names){
