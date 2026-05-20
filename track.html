@@ -838,7 +838,16 @@ let stages = [
 "Out for Delivery",
 "Delivered"
 ];
-
+let paymentNotice = "";
+if(currentStatus === "Payment Pending"){
+paymentNotice = `
+<div class="cancel-box" style="background:#fff7ed;border-color:#fed7aa;color:#9a3412;">
+<i class="fa-solid fa-clock"></i>
+Payment confirmation is pending. We will update your order after checking payment.
+</div>
+`;
+currentStatus = "Order Processing";
+}
 let currentIndex = stages.indexOf(currentStatus);
 if(currentIndex < 0){
 currentIndex = 0;
