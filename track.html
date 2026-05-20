@@ -728,11 +728,16 @@ if(value.includes("confirm")){
 return "Order Confirmed";
 }
 
-if(value.includes("pending") || value.includes("payment") || value.includes("new")){
+if(value.includes("pending") || value.includes("payment")){
 return "Payment Pending";
 }
 
-return "Payment Pending";
+if(value.includes("processing") || value.includes("new")){
+return "Order Processing";
+}
+}
+
+return "Order Processing";
 }
 
 function statusClass(status){
