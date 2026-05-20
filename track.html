@@ -668,7 +668,29 @@ function toggleProfileMenu(){
 let menu = document.getElementById("profileMenu");
 menu.style.display = menu.style.display == "block" ? "none" : "block";
 }
+function hiddenTrackTap(){
+trackTapCount++;
 
+if(trackTapTimer){
+clearTimeout(trackTapTimer);
+}
+
+trackTapTimer = setTimeout(function(){
+trackTapCount = 0;
+},1800);
+
+if(trackTapCount >= 5){
+trackTapCount = 0;
+let pin = prompt("Enter seller PIN");
+
+if(pin === SELLER_PIN){
+window.location.href = "label.html";
+}
+else if(pin !== null){
+showTrackToast("Wrong PIN");
+}
+}
+}
 function digitsOnly(input,maxLength){
 input.value = input.value.replace(/\D/g,"").slice(0,maxLength);
 }
