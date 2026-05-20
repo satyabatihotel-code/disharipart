@@ -1313,14 +1313,13 @@ status:"Order Processing"
 
 showProcessing();
 
-try{
-await sendOrderToSheet(order);
-}
-catch(error){
-showCartToast("Order sheet slow, sending WhatsApp");
-}
 
+
+sendOrderToSheet(order).catch(function(error){});
+
+setTimeout(function(){
 openWhatsApp(order);
+},2000);
 }
 
 function goToCheckout(){
