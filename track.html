@@ -705,40 +705,7 @@ toast.classList.remove("show");
 },2200);
 }
 
-function normalizeStatus(status){
-let value = String(status || "Payment Pending").trim().toLowerCase();
-
-if(value.includes("cancel")){
-return "Cancelled";
-}
-
-if(value.includes("deliver") && !value.includes("out")){
-return "Delivered";
-}
-
-if(value.includes("out")){
-return "Out for Delivery";
-}
-
-if(value.includes("pack")){
-return "Packing";
-}
-
-if(value.includes("confirm")){
-return "Order Confirmed";
-}
-
-if(value.includes("pending") || value.includes("payment")){
-return "Payment Pending";
-}
-
-if(value.includes("processing") || value.includes("new")){
-return "Order Processing";
-}
-}
-
-return "Order Processing";
-}
+function normalizeStatus
 
 function statusClass(status){
 let normalized = normalizeStatus(status);
