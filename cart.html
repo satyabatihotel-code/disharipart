@@ -1059,7 +1059,7 @@ landmark:document.getElementById("landmark").value.trim()
 function saveAddressAndReview(){
 let address = collectAddress();
 
-if(!address.fullName || !address.phone || !address.village || !address.policeStation || !address.district || !address.pinCode || !address.landmark){
+if(!address.fullName || !address.phone || !address.village || !address.postOffice || !address.policeStation || !address.district || !address.pinCode || !address.landmark){
 showCartToast("Fill all fields");
 return;
 }
