@@ -459,6 +459,7 @@ await loadOrders();
 }
 catch(error){
 showToast("Could not load orders");
+btn.innerHTML = `<i class="fa-solid fa-print"></i> Find Label`;  
 return;
 }
 }
@@ -474,6 +475,7 @@ matched.sort((a,b)=>orderSortValue(b) - orderSortValue(a));
 
 if(!matched.length){
 showToast("No order found");
+btn.innerHTML = `<i class="fa-solid fa-print"></i> Find Label`;  
 return;
 }
 
