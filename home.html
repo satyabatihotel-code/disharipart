@@ -1080,7 +1080,7 @@ alt="${product["Product Name"] || "Dishari product"}"
 <div class="product-name">${product["Product Name"] || ""}</div>
 <div class="product-price">₹ ${product["Price"] || ""}</div>
 <div class="product-desc">${product["Description1"] || ""}</div>
-<button class="cart-btn" onclick='event.stopPropagation();addToCart("${product["Product ID"]}","${product["Product Name"]}","${product["Price"]}")'>Add To Cart</button>
+<button class="cart-btn" onclick='event.stopPropagation();addToCart("${product["Product ID"]}")'>Add To Cart</button>
 </div>
 `;
 });
