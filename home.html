@@ -710,6 +710,14 @@ border-color:#1877F2;
 box-shadow:0 5px 12px rgba(24,119,242,0.25);
 }
 
+.size-btn.available{
+background:#eaf3ff;
+color:#1877F2;
+border-color:#b9d7ff;
+box-shadow:0 5px 12px rgba(24,119,242,0.10);
+cursor:pointer;
+}
+
 .order-toast{
 position:fixed;
 left:50%;
@@ -841,6 +849,7 @@ const PRODUCT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEy
 const CACHE_KEY = "dishariProductsCacheV1";
 
 let allProducts = [];
+let visibleProducts = [];
 let globalSale = null;
 let currentProduct = null;
 let currentSlide = 0;
@@ -1055,6 +1064,7 @@ document.getElementById("mainProducts").innerHTML =
 
 function loadMainProducts(data,title){
 document.getElementById("sectionTitle").innerText = title;
+visibleProducts = data;
 let html = "";
 
 if(data.length === 0){
@@ -1066,7 +1076,7 @@ return;
 data.forEach((product,index)=>{
 let imageUrl = normalizeImageUrl(product["Image Url"] || "");
 html += `
-<div class="product-card" onclick='openPopup(${JSON.stringify(product)})'>
+<div class="product-card" onclick="openPopupByIndex(${index})">
 ${String(product["Show"] || "").toLowerCase() === "new" ? '<div class="new-badge">NEW</div>' : ''}
 <img
 src="${imageUrl}"
@@ -1080,7 +1090,7 @@ alt="${product["Product Name"] || "Dishari product"}"
 <div class="product-name">${product["Product Name"] || ""}</div>
 <div class="product-price">₹ ${product["Price"] || ""}</div>
 <div class="product-desc">${product["Description1"] || ""}</div>
-<button class="cart-btn" onclick='event.stopPropagation();openPopup(${JSON.stringify(product)})'>Add To Cart</button>
+<button class="cart-btn" onclick="event.stopPropagation();openPopupByIndex(${index})">Add To Cart</button>
 </div>
 `;
 });
@@ -1110,6 +1120,14 @@ document.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("ac
 el.classList.add("active");
 let filtered = allProducts.filter(item => item.Category == category);
 loadMainProducts(filtered,category);
+}
+
+function openPopupByIndex(index){
+let product = visibleProducts[index];
+
+if(product){
+openPopup(product);
+}
 }
 
 function cleanPrice(value){
@@ -1227,7 +1245,7 @@ return;
 }
 
 saveProductToCart(currentProduct,selectedPopupSize || getDefaultSize(currentProduct));
-showHomeCartToast("Added to cart");
+window.location.href = "cart.html";
 }
 
 function updateCartCount(){
@@ -1688,7 +1706,7 @@ let standardSizes = ["S","M","L","XL","XXL","XXXL"];
 
 standardSizes.forEach(size=>{
 if(availableSizes.includes(size)){
-popupSizeHTML += `<div class="size-btn" onclick="selectPopupSize('${size}',this)">${size}</div>`;
+popupSizeHTML += `<div class="size-btn available" onclick="selectPopupSize('${size}',this)">${size}</div>`;
 }
 else{
 popupSizeHTML += `<div class="size-btn">${size}</div>`;
