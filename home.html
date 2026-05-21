@@ -1617,15 +1617,23 @@ document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-s
 
 let sizeValue = (product["Size"] || "Free Size").trim();
 let popupSizeHTML = "";
+selectedPopupSize = getDefaultSize(product);
+
 if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
 popupSizeHTML = `<div class="size-btn active">${sizeValue}</div>`;
 }
 else{
 let availableSizes = sizeValue.replace(/\s+/g,"").toUpperCase().split(",");
 let standardSizes = ["S","M","L","XL","XXL","XXXL"];
+
 standardSizes.forEach(size=>{
-let activeClass = availableSizes.includes(size) ? "active" : "";
-popupSizeHTML += `<div class="size-btn ${activeClass}">${size}</div>`;
+if(availableSizes.includes(size)){
+let activeClass = size === selectedPopupSize ? "active" : "";
+popupSizeHTML += `<div class="size-btn ${activeClass}" onclick="selectPopupSize('${size}',this)">${size}</div>`;
+}
+else{
+popupSizeHTML += `<div class="size-btn">${size}</div>`;
+}
 });
 }
 
