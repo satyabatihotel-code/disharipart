@@ -1532,7 +1532,11 @@ return;
 let firstDelay = 20000 + Math.floor(Math.random() * 5000);
 orderToastTimer = setTimeout(showOrderToast, firstDelay);
 }
-
+function selectPopupSize(size,el){
+selectedPopupSize = size;
+document.querySelectorAll("#popupSize .size-btn").forEach(btn=>btn.classList.remove("active"));
+el.classList.add("active");
+}
 function openPopup(product){
 let reviewHTML = "";
 let shuffledReviews = [...reviewTemplates].sort(() => 0.5 - Math.random()).slice(0,3);
