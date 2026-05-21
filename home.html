@@ -1112,25 +1112,86 @@ let filtered = allProducts.filter(item => item.Category == category);
 loadMainProducts(filtered,category);
 }
 
-function addToCart(id,name,price){
+
+function cleanPrice(value){
+let priceText = String(value || "0").replace(/[^\d.]/g,"");
+return Number(priceText) || 0;
+}
+
+function getFinalPrice(product){
+let price = cleanPrice(product["Price"]);
+let todayOffer = cleanPrice(product["Today Offer"]);
+let stock = String(product["Stock"] || "").toLowerCase();
+let isInStock = stock === "yes" || stock === "in stock";
+
+if(todayOffer > 0 && price > 0){
+return Math.max(price - todayOffer, 0);
+}
+
+if(globalSale && isInStock && price > 0){
+return Math.round(price - ((price * globalSale.percent) / 100));
+}
+
+return price;
+}
+
+function getDefaultSize(product){
+let sizeValue = String(product["Size"] || "Free Size").trim();
+
+if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
+return sizeValue;
+}
+
+return sizeValue.replace(/\s+/g,"").toUpperCase().split(",")[0] || "Free Size";
+}
+
+function saveProductToCart(product,size){
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-cart.push({id,name,price});
+let selectedSize = size || getDefaultSize(product);
+let id = product["Product ID"] || "";
+let existing = cart.find(item => String(item.id) === String(id) && String(item.size) === String(selectedSize));
+
+if(existing){
+existing.quantity = (Number(existing.quantity) || 1) + 1;
+existing.selected = true;
+}
+else{
+cart.push({
+id:id,
+name:product["Product Name"] || "Dishari Product",
+price:cleanPrice(product["Price"]),
+finalPrice:getFinalPrice(product),
+image:normalizeImageUrl(product["Image Url"] || ""),
+size:selectedSize,
+quantity:1,
+selected:true
+});
+}
+
 localStorage.setItem("cart",JSON.stringify(cart));
 updateCartCount();
 }
 
+function addToCart(id,name,price){
+let product = allProducts.find(item => String(item["Product ID"]) === String(id));
+
+if(product){
+saveProductToCart(product,getDefaultSize(product));
+}
+}
+
 function popupAddToCart(){
 if(currentProduct){
-addToCart(currentProduct["Product ID"], currentProduct["Product Name"], currentProduct["Price"]);
+saveProductToCart(currentProduct,selectedPopupSize || getDefaultSize(currentProduct));
 }
 }
 
 function updateCartCount(){
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-document.getElementById("cartCount").innerText = cart.length;
+let count = cart.reduce((total,item)=>total + (Number(item.quantity) || 1),0);
+document.getElementById("cartCount").innerText = count;
 }
 updateCartCount();
-
 document.getElementById("searchInput").addEventListener("input",function(){
 let value = this.value.toLowerCase().trim();
 
