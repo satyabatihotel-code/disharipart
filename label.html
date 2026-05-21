@@ -444,9 +444,11 @@ return "₹" + Math.round(number).toLocaleString("en-IN");
 
 async function findOrder(){
 let query = document.getElementById("searchInput").value.trim();
-
+let btn = document.getElementById("findBtn");
+btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Generating Label...`;
 if(!query){
 showToast("Enter Order ID or Phone");
+btn.innerHTML = `<i class="fa-solid fa-print"></i> Find Label`;  
 return;
 }
 
