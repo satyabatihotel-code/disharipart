@@ -844,7 +844,7 @@ let allProducts = [];
 let globalSale = null;
 let currentProduct = null;
 let currentSlide = 0;
-let selectedPopupSize = ""; 
+let selectedPopupSize = "";
 let viewingTimer = null;
 
 let banners = [];
@@ -1080,7 +1080,7 @@ alt="${product["Product Name"] || "Dishari product"}"
 <div class="product-name">${product["Product Name"] || ""}</div>
 <div class="product-price">₹ ${product["Price"] || ""}</div>
 <div class="product-desc">${product["Description1"] || ""}</div>
-<button class="cart-btn" onclick='event.stopPropagation();addToCart("${product["Product ID"]}")'>Add To Cart</button>
+<button class="cart-btn" onclick='event.stopPropagation();openPopup(${JSON.stringify(product)})'>Add To Cart</button>
 </div>
 `;
 });
@@ -1112,7 +1112,6 @@ let filtered = allProducts.filter(item => item.Category == category);
 loadMainProducts(filtered,category);
 }
 
-
 function cleanPrice(value){
 let priceText = String(value || "0").replace(/[^\d.]/g,"");
 return Number(priceText) || 0;
@@ -1145,38 +1144,15 @@ return sizeValue;
 return sizeValue.replace(/\s+/g,"").toUpperCase().split(",")[0] || "Free Size";
 }
 
+function showHomeCartToast(message){
+document.getElementById("orderToastText").innerHTML = message;
 
+let toast = document.getElementById("orderToast");
+toast.classList.add("show");
 
-function cleanPrice(value){
-let priceText = String(value || "0").replace(/[^\d.]/g,"");
-return Number(priceText) || 0;
-}
-
-function getFinalPrice(product){
-let price = cleanPrice(product["Price"]);
-let todayOffer = cleanPrice(product["Today Offer"]);
-let stock = String(product["Stock"] || "").toLowerCase();
-let isInStock = stock === "yes" || stock === "in stock";
-
-if(todayOffer > 0 && price > 0){
-return Math.max(price - todayOffer, 0);
-}
-
-if(globalSale && isInStock && price > 0){
-return Math.round(price - ((price * globalSale.percent) / 100));
-}
-
-return price;
-}
-
-function getDefaultSize(product){
-let sizeValue = String(product["Size"] || "Free Size").trim();
-
-if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
-return sizeValue;
-}
-
-return sizeValue.replace(/\s+/g,"").toUpperCase().split(",")[0] || "Free Size";
+setTimeout(function(){
+toast.classList.remove("show");
+},1800);
 }
 
 function saveProductToCart(product,size){
@@ -1238,9 +1214,20 @@ updateCartCount();
 }
 
 function popupAddToCart(){
-if(currentProduct){
-saveProductToCart(currentProduct,selectedPopupSize || getDefaultSize(currentProduct));
+if(!currentProduct){
+return;
 }
+
+let sizeValue = String(currentProduct["Size"] || "Free Size").trim();
+let isFreeSize = sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size";
+
+if(!isFreeSize && !selectedPopupSize){
+showHomeCartToast("Please select a size");
+return;
+}
+
+saveProductToCart(currentProduct,selectedPopupSize || getDefaultSize(currentProduct));
+showHomeCartToast("Added to cart");
 }
 
 function updateCartCount(){
@@ -1256,8 +1243,8 @@ cart = [];
 let count = cart.reduce((total,item)=>total + (Number(item.quantity) || 1),0);
 document.getElementById("cartCount").innerText = count;
 }
-
 updateCartCount();
+
 document.getElementById("searchInput").addEventListener("input",function(){
 let value = this.value.toLowerCase().trim();
 
@@ -1598,11 +1585,13 @@ return;
 let firstDelay = 20000 + Math.floor(Math.random() * 5000);
 orderToastTimer = setTimeout(showOrderToast, firstDelay);
 }
+
 function selectPopupSize(size,el){
 selectedPopupSize = size;
 document.querySelectorAll("#popupSize .size-btn").forEach(btn=>btn.classList.remove("active"));
 el.classList.add("active");
 }
+
 function openPopup(product){
 let reviewHTML = "";
 let shuffledReviews = [...reviewTemplates].sort(() => 0.5 - Math.random()).slice(0,3);
@@ -1687,9 +1676,10 @@ document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-s
 
 let sizeValue = (product["Size"] || "Free Size").trim();
 let popupSizeHTML = "";
-selectedPopupSize = getDefaultSize(product);
+selectedPopupSize = "";
 
 if(sizeValue.toLowerCase() === "free size" || sizeValue.toLowerCase() === "standard size"){
+selectedPopupSize = sizeValue;
 popupSizeHTML = `<div class="size-btn active">${sizeValue}</div>`;
 }
 else{
@@ -1698,8 +1688,7 @@ let standardSizes = ["S","M","L","XL","XXL","XXXL"];
 
 standardSizes.forEach(size=>{
 if(availableSizes.includes(size)){
-let activeClass = size === selectedPopupSize ? "active" : "";
-popupSizeHTML += `<div class="size-btn ${activeClass}" onclick="selectPopupSize('${size}',this)">${size}</div>`;
+popupSizeHTML += `<div class="size-btn" onclick="selectPopupSize('${size}',this)">${size}</div>`;
 }
 else{
 popupSizeHTML += `<div class="size-btn">${size}</div>`;
