@@ -681,14 +681,7 @@ trackTapCount = 0;
 
 if(trackTapCount >= 5){
 trackTapCount = 0;
-let pin = prompt("Enter seller PIN");
-
-if(pin === SELLER_PIN){
 window.location.href = "label.html";
-}
-else if(pin !== null){
-showTrackToast("Wrong PIN");
-}
 }
 }
 function digitsOnly(input,maxLength){
