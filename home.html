@@ -696,18 +696,17 @@ padding:9px 10px;
 border-radius:12px;
 border:1px solid #d8e0ef;
 background:white;
-color:#111;
+color:#8a94a6;
 font-size:13px;
 font-weight:bold;
 text-align:center;
 flex-shrink:0;
-}
-
-.size-btn.active{
-background:#1877F2;
-color:white;
-border-color:#1877F2;
-box-shadow:0 5px 12px rgba(24,119,242,0.25);
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+-webkit-tap-highlight-color:transparent;
+touch-action:manipulation;
+cursor:default;
 }
 
 .size-btn.available{
@@ -716,6 +715,14 @@ color:#1877F2;
 border-color:#b9d7ff;
 box-shadow:0 5px 12px rgba(24,119,242,0.10);
 cursor:pointer;
+}
+
+.size-btn.active,
+.size-btn.available.active{
+background:#1877F2;
+color:white;
+border-color:#1877F2;
+box-shadow:0 5px 12px rgba(24,119,242,0.25);
 }
 
 .order-toast{
@@ -1605,6 +1612,10 @@ orderToastTimer = setTimeout(showOrderToast, firstDelay);
 }
 
 function selectPopupSize(size,el){
+if(!el.classList.contains("available")){
+return;
+}
+
 selectedPopupSize = size;
 document.querySelectorAll("#popupSize .size-btn").forEach(btn=>btn.classList.remove("active"));
 el.classList.add("active");
