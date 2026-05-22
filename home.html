@@ -1229,8 +1229,21 @@ searchInput.value = "";
 
 document.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("active"));
 el.classList.add("active");
+scrollCategoryButtonIntoView(el);
 let filtered = allProducts.filter(item => item.Category == category);
 loadMainProducts(filtered,category);
+}
+
+function scrollCategoryButtonIntoView(button){
+if(!button){
+return;
+}
+
+button.scrollIntoView({
+behavior:"smooth",
+block:"nearest",
+inline:"center"
+});
 }
 
 function updateCategoryActiveFromSearch(value){
@@ -1247,6 +1260,7 @@ matchedButton = btn;
 
 if(matchedButton){
 matchedButton.classList.add("active");
+scrollCategoryButtonIntoView(matchedButton);
 }
 }
 
@@ -1408,7 +1422,16 @@ let defaultProducts = defaultCategory
 ? allProducts.filter(item => (item.Category || "").trim() === defaultCategory)
 : [];
 
-document.querySelectorAll(".category-btn").forEach((btn,index)=>btn.classList.toggle("active", index === 0));
+let firstCategoryButton = null;
+document.querySelectorAll(".category-btn").forEach((btn,index)=>{
+btn.classList.toggle("active", index === 0);
+
+if(index === 0){
+firstCategoryButton = btn;
+}
+});
+
+scrollCategoryButtonIntoView(firstCategoryButton);
 loadMainProducts(defaultProducts.length ? defaultProducts : allProducts, defaultCategory);
 return;
 }
