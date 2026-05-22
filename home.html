@@ -383,6 +383,7 @@ margin-bottom:5px;
 .nav-item.active{
 color:#1877F2;
 }
+
 .bottom-nav,
 .nav-item,
 .nav-item span,
@@ -392,6 +393,7 @@ user-select:none;
 -webkit-touch-callout:none;
 touch-action:manipulation;
 }
+
 .cart-badge{
 position:absolute;
 top:-2px;
@@ -458,7 +460,7 @@ border-radius:0;
 background:white;
 box-shadow:0 8px 24px rgba(0,0,0,0.08);
 }
-
+ 
 .popup-images{
 display:flex;
 transition:0.4s;
@@ -878,7 +880,7 @@ let orderToastHideTimer = null;
 
 let user = localStorage.getItem("user");
 if(!user){
-window.location.href = "login.html";
+ window.location.href = "login.html";
 }
 
 let hour = new Date().getHours();
@@ -1298,7 +1300,7 @@ return;
 
 saveProductToCart(currentProduct,selectedPopupSize || getDefaultSize(currentProduct));
 window.location.href = "cart.html";
-}
+ }
 
 function updateCartCount(){
 let cart = [];
@@ -1678,7 +1680,7 @@ reviewHTML += `<div class="review">&#10004; ${review}</div>`;
 
 });
 document.getElementById("reviewBox").innerHTML = reviewHTML;
-
+ 
 currentProduct = product;
 
 let images = [
@@ -1801,3 +1803,37 @@ if(viewingTimer){
 clearInterval(viewingTimer);
 viewingTimer = null;
 }
+}
+
+function changeSlide(direction){
+let total = document.querySelectorAll("#popupImages img").length;
+if(!total){
+return;
+}
+
+currentSlide += direction;
+if(currentSlide < 0){
+currentSlide = total - 1;
+}
+if(currentSlide >= total){
+currentSlide = 0;
+}
+updateSlider();
+}
+
+function updateSlider(){
+document.getElementById("popupImages").style.transform = `translateX(-${currentSlide * 100}%)`;
+let dots = document.querySelectorAll(".dot");
+dots.forEach(dot=>dot.classList.remove("active"));
+if(dots[currentSlide]){
+dots[currentSlide].classList.add("active");
+}
+}
+
+history.pushState(null, "", location.href);
+window.addEventListener("popstate", function () {
+history.pushState(null, "", location.href);
+});
+</script>
+</body>
+</html>
