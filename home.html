@@ -176,11 +176,10 @@ color:#222;
 .categories{
 display:flex;
 overflow-x:auto;
-padding:0 15px 12px;
+padding:0 15px 10px;
 gap:12px;
 scrollbar-width:none;
-min-height:54px;
-align-items:center;
+min-height:46px;
 }
 
 .categories::-webkit-scrollbar,
@@ -190,31 +189,20 @@ display:none;
 }
 
 .category-btn{
-min-height:46px;
-padding:0 22px;
+padding:10px 18px;
 border-radius:30px;
 background:white;
 white-space:nowrap;
 box-shadow:0 2px 10px rgba(0,0,0,0.08);
 cursor:pointer;
-font-size:15px;
-line-height:18px;
-font-weight:900;
+font-size:14px;
+font-weight:bold;
 transition:0.3s;
-display:flex;
-align-items:center;
-justify-content:center;
-flex:0 0 auto;
-text-align:center;
 }
 
 .category-btn.active{
 background:#1877F2;
 color:white;
-}
-
-.category-btn.wide{
-min-width:150px;
 }
 
 .category-skeleton{
@@ -671,16 +659,23 @@ box-shadow:0 8px 18px rgba(24,119,242,0.28);
 
 .new-badge{
 position:absolute;
-top:24px;
-left:24px;
+top:22px;
+left:22px;
+min-width:50px;
+height:28px;
+padding:0 13px;
 background:linear-gradient(135deg,#ff4d6d,#ff1744);
 color:white;
-font-size:10px;
-font-weight:bold;
-padding:4px 9px;
-border-radius:14px;
+font-size:11px;
+line-height:1;
+font-weight:900;
+border-radius:999px;
+display:flex;
+align-items:center;
+justify-content:center;
+letter-spacing:0;
 z-index:5;
-box-shadow:0 4px 10px rgba(255,23,68,0.25);
+box-shadow:0 6px 14px rgba(255,23,68,0.28);
 }
 
 .size-section{
@@ -1145,9 +1140,8 @@ return categories;
 function loadCategories(categories){
 let html = "";
 categories.forEach((cat,index)=>{
-let wideClass = cat.toLowerCase() === "new arrivals" ? " wide" : "";
 html += `
-<div class="category-btn${wideClass} ${index==0 ? "active" : ""}" onclick="filterCategory('${cat}',this)">
+<div class="category-btn ${index==0 ? "active" : ""}" onclick="filterCategory('${cat}',this)">
 ${cat}
 </div>
 `;
@@ -1811,4 +1805,11 @@ updateSlider();
 function updateSlider(){
 document.getElementById("popupImages").style.transform = `translateX(-${currentSlide * 100}%)`;
 let dots = document.querySelectorAll(".dot");
-dots.forEach(dot=>dot.classL
+dots.forEach(dot=>dot.classList.remove("active"));
+if(dots[currentSlide]){
+dots[currentSlide].classList.add("active");
+}
+}
+
+history.pushState(null, "", location.href);
+windo
