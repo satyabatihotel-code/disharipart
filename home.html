@@ -1017,13 +1017,15 @@ allProducts = prepareVisibleProducts(data);
 globalSale = findGlobalSale(data);
  
 loadDynamicBanners(data);
-loadCategories(allProducts);
+let categories = getOrderedCategories(allProducts);
+loadCategories(categories);
 
-let defaultProducts = allProducts.filter(item =>
-(item.Category || "").trim().toLowerCase() === "new arrivals"
-);
+let defaultCategory = categories[0] || "New Arrivals";
+let defaultProducts = defaultCategory
+? allProducts.filter(item => (item.Category || "").trim() === defaultCategory)
+: [];
 
-loadMainProducts(defaultProducts.length ? defaultProducts : allProducts, "New Arrivals");
+loadMainProducts(defaultProducts.length ? defaultProducts : allProducts, defaultCategory);
 startOrderToast();
 
 if(!fromCache){
@@ -1105,11 +1107,30 @@ alt="${product["Product Name"] || "Dishari product"}"
 document.getElementById("mainProducts").innerHTML = html;
 }
 
-function loadCategories(data){
-let categories = [...new Set(
-data.map(item => item.Category).filter(cat => cat && cat.trim() != "")
-)];
+function getOrderedCategories(data){
+let categories = [];
 
+data.forEach(item=>{
+let category = (item.Category || "").trim();
+
+if(category && !categories.includes(category)){
+categories.push(category);
+}
+});
+
+let newArrivals = categories.find(cat => cat.toLowerCase() === "new arrivals");
+
+if(newArrivals){
+categories = [
+newArrivals,
+...categories.filter(cat => cat.toLowerCase() !== "new arrivals")
+];
+}
+
+return categories;
+}
+
+function loadCategories(categories){
 let html = "";
 categories.forEach((cat,index)=>{
 html += `
@@ -1274,10 +1295,14 @@ document.getElementById("searchInput").addEventListener("input",function(){
 let value = this.value.toLowerCase().trim();
 
 if(value === ""){
-let defaultProducts = allProducts.filter(item =>
-(item.Category || "").trim().toLowerCase() === "new arrivals"
-);
-loadMainProducts(defaultProducts.length ? defaultProducts : allProducts,"New Arrivals");
+let categories = getOrderedCategories(allProducts);
+let defaultCategory = categories[0] || "New Arrivals";
+let defaultProducts = defaultCategory
+? allProducts.filter(item => (item.Category || "").trim() === defaultCategory)
+: [];
+
+document.querySelectorAll(".category-btn").forEach((btn,index)=>btn.classList.toggle("active", index === 0));
+loadMainProducts(defaultProducts.length ? defaultProducts : allProducts, defaultCategory);
 return;
 }
 
