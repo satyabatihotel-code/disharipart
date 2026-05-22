@@ -1084,7 +1084,7 @@ data.forEach((product,index)=>{
 let imageUrl = normalizeImageUrl(product["Image Url"] || "");
 html += `
 <div class="product-card" onclick="openPopupByIndex(${index})">
-${String(product["Show"] || "").toLowerCase() === "new" ? '<div class="new-badge">NEW</div>' : ''}
+${String(product["Category"] || "").trim().toLowerCase() === "new arrivals" ? '<div class="new-badge">NEW</div>' : ''}
 <img
 src="${imageUrl}"
 loading="${index < 4 ? "eager" : "lazy"}"
