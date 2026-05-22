@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<link rel="preconnect" href="https://lh3.googleusercontent.com">
+<link rel="preconnect" href="https://drive.google.com">
+<link rel="dns-prefetch" href="https://script.google.com">
+<link rel="dns-prefetch" href="https://script.googleusercontent.com">
+<link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
+<link rel="dns-prefetch" href="https://drive.google.com">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dishari Cart</title>
@@ -18,7 +27,7 @@ scroll-behavior:smooth;
 body{
 background:#f0f2f5;
 color:#222;
-padding-bottom:95px;
+padding-bottom:145px;
 overflow-x:hidden;
 }
 
@@ -366,11 +375,6 @@ justify-content:center;
 gap:10px;
 }
 
-.checkout-btn:disabled{
-opacity:0.5;
-cursor:not-allowed;
-}
-
 .checkout-toast,
 .cart-toast{
 position:fixed;
@@ -391,7 +395,6 @@ box-shadow:0 8px 18px rgba(24,119,242,0.28);
 z-index:9000;
 opacity:0;
 pointer-events:none;
-transform:translateY(0);
 transition:opacity 0.25s ease;
 color:white;
 font-size:16px;
@@ -686,6 +689,30 @@ align-items:center;
 font-weight:bold;
 }
 
+button,
+a,
+.nav-item,
+.bottom-nav,
+[role="button"],
+.clickable{
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+-webkit-tap-highlight-color:transparent;
+touch-action:manipulation;
+}
+
+.bottom-nav,
+.bottom-nav *,
+.nav-item,
+.nav-item *{
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+-webkit-tap-highlight-color:transparent;
+touch-action:manipulation;
+}
+
 @media(max-width:420px){
 .container{
 padding:14px;
@@ -734,14 +761,10 @@ padding:16px;
 
 <div class="container">
 <div class="page-title">My Cart</div>
-
 <div id="cartContent"></div>
 </div>
 
-<div class="checkout-toast" id="checkoutToast">
-Select item to checkout
-</div>
-
+<div class="checkout-toast" id="checkoutToast">Select item to checkout</div>
 <div class="cart-toast" id="cartToast"></div>
 
 <div class="checkout-overlay" id="checkoutOverlay">
@@ -1027,6 +1050,7 @@ modal.innerHTML = `
 <input type="text" id="fullName" placeholder="Full Name" value="${saved.fullName || ""}">
 <input type="tel" inputmode="numeric" maxlength="10" id="phone" placeholder="Phone Number" value="${saved.phone || ""}" oninput="digitsOnly(this,10)">
 <input type="text" id="village" placeholder="Village" value="${saved.village || ""}">
+<input type="text" id="postOffice" placeholder="Post Office" value="${saved.postOffice || ""}">
 <input type="text" id="policeStation" placeholder="Police Station" value="${saved.policeStation || ""}">
 <input type="text" id="district" placeholder="District" value="${saved.district || ""}">
 <input type="tel" inputmode="numeric" maxlength="6" id="pinCode" placeholder="Pin Code" value="${saved.pinCode || ""}" oninput="digitsOnly(this,6)">
@@ -1047,6 +1071,7 @@ return {
 fullName:document.getElementById("fullName").value.trim(),
 phone:document.getElementById("phone").value.trim(),
 village:document.getElementById("village").value.trim(),
+postOffice:document.getElementById("postOffice").value.trim(),
 policeStation:document.getElementById("policeStation").value.trim(),
 district:document.getElementById("district").value.trim(),
 pinCode:document.getElementById("pinCode").value.trim(),
@@ -1057,7 +1082,7 @@ landmark:document.getElementById("landmark").value.trim()
 function saveAddressAndReview(){
 let address = collectAddress();
 
-if(!address.fullName || !address.phone || !address.village || !address.policeStation || !address.district || !address.pinCode || !address.landmark){
+if(!address.fullName || !address.phone || !address.village || !address.postOffice || !address.policeStation || !address.district || !address.pinCode || !address.landmark){
 showCartToast("Fill all fields");
 return;
 }
@@ -1123,6 +1148,7 @@ modal.innerHTML = `
 <div class="review-line"><span>Name</span><strong>${address.fullName}</strong></div>
 <div class="review-line"><span>Phone</span><strong>${address.phone}</strong></div>
 <div class="review-line"><span>Village</span><strong>${address.village}</strong></div>
+<div class="review-line"><span>Post Office</span><strong>${address.postOffice}</strong></div>
 <div class="review-line"><span>Police Station</span><strong>${address.policeStation}</strong></div>
 <div class="review-line"><span>District</span><strong>${address.district}</strong></div>
 <div class="review-line"><span>Pin Code</span><strong>${address.pinCode}</strong></div>
@@ -1168,7 +1194,7 @@ modal.innerHTML = `
 <div class="processing-box">
 <div class="spinner"></div>
 <h3>Processing order...</h3>
-Opening WhatsApp with your order details. Tap Send there to place your order.
+<p>Opening WhatsApp with your order details. Tap Send there to place your order.</p>
 </div>
 `;
 openCheckoutOverlay();
@@ -1202,6 +1228,7 @@ lines.push("Customer Details:");
 lines.push("Name: " + order.customer.fullName);
 lines.push("Phone: " + order.customer.phone);
 lines.push("Village: " + order.customer.village);
+lines.push("Post Office: " + order.customer.postOffice);
 lines.push("Police Station: " + order.customer.policeStation);
 lines.push("District: " + order.customer.district);
 lines.push("Pin Code: " + order.customer.pinCode);
@@ -1240,6 +1267,7 @@ dateTime:order.dateTime,
 customerName:order.customer.fullName,
 phoneNumber:order.customer.phone,
 village:order.customer.village,
+postOffice:order.customer.postOffice,
 policeStation:order.customer.policeStation,
 district:order.customer.district,
 pinCode:order.customer.pinCode,
@@ -1253,7 +1281,7 @@ totalMrp:money(order.totalMrp),
 discount:money(order.discount),
 shipping:"Free",
 orderTotal:money(order.orderTotal),
-status:"New Order"
+status:"Order Processing"
 };
 
 await fetch(ORDER_API, {
@@ -1312,9 +1340,6 @@ status:"Order Processing"
 };
 
 showProcessing();
-
-
-
 sendOrderToSheet(order).catch(function(error){});
 
 setTimeout(function(){
