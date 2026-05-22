@@ -734,7 +734,7 @@ border-color:#1877F2;
 box-shadow:0 5px 12px rgba(24,119,242,0.25);
 }
 
-.order-toast{
+.home-size-toast{
 position:fixed;
 left:50%;
 bottom:122px;
@@ -754,12 +754,12 @@ pointer-events:none;
 transition:0.35s ease;
 }
 
-.order-toast.show{
+.home-size-toast.show{
 opacity:1;
 transform:translate(-50%,0);
 }
 
-.order-toast-icon{
+.home-size-toast-icon{
 width:50px;
 height:50px;
 border-radius:50%;
@@ -772,11 +772,56 @@ font-size:20px;
 flex-shrink:0;
 }
 
-.order-toast-text{
+.home-size-toast-text{
 font-size:16px;
 line-height:22px;
 color:#071d33;
 font-weight:900;
+}
+
+.order-toast{
+position:fixed;
+left:50%;
+bottom:92px;
+transform:translate(-50%,30px);
+width:calc(100% - 28px);
+max-width:430px;
+background:white;
+border-radius:18px;
+padding:12px 14px;
+display:flex;
+align-items:center;
+gap:10px;
+box-shadow:0 10px 28px rgba(0,0,0,0.16);
+z-index:3000;
+opacity:0;
+pointer-events:none;
+transition:0.35s ease;
+}
+
+.order-toast.show{
+opacity:1;
+transform:translate(-50%,0);
+}
+
+.order-toast-icon{
+width:38px;
+height:38px;
+border-radius:50%;
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:16px;
+flex-shrink:0;
+}
+
+.order-toast-text{
+font-size:13px;
+line-height:19px;
+color:#222;
+font-weight:600;
 }
 
 .order-toast-text b{
@@ -816,9 +861,16 @@ color:#1877F2;
 <div class="category-section-title" id="sectionTitle">New Arrivals</div>
 <div class="products" id="mainProducts"></div>
 
+<div class="home-size-toast" id="homeSizeToast">
+<div class="home-size-toast-icon">
+<i class="fa-solid fa-circle-exclamation"></i>
+</div>
+<div class="home-size-toast-text" id="homeSizeToastText">Please select a size</div>
+</div>
+
 <div class="order-toast" id="orderToast">
 <div class="order-toast-icon">
-<i class="fa-solid fa-circle-exclamation"></i>
+<i class="fa-solid fa-bag-shopping"></i>
 </div>
 <div class="order-toast-text" id="orderToastText"></div>
 </div>
@@ -1170,10 +1222,32 @@ document.getElementById("categories").innerHTML = html;
 }
 
 function filterCategory(category,el){
+let searchInput = document.getElementById("searchInput");
+if(searchInput){
+searchInput.value = "";
+}
+
 document.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("active"));
 el.classList.add("active");
 let filtered = allProducts.filter(item => item.Category == category);
 loadMainProducts(filtered,category);
+}
+
+function updateCategoryActiveFromSearch(value){
+let matchedButton = null;
+
+document.querySelectorAll(".category-btn").forEach(btn=>{
+let categoryText = btn.innerText.trim().toLowerCase();
+btn.classList.remove("active");
+
+if(!matchedButton && value && categoryText.includes(value)){
+matchedButton = btn;
+}
+});
+
+if(matchedButton){
+matchedButton.classList.add("active");
+}
 }
 
 function openPopupByIndex(index){
@@ -1217,11 +1291,18 @@ return sizeValue.replace(/\s+/g,"").toUpperCase().split(",")[0] || "Free Size";
 }
 
 function showHomeCartToast(message){
-document.getElementById("orderToastText").innerHTML = message;
+let toast = document.getElementById("homeSizeToast");
+let text = document.getElementById("homeSizeToastText");
 
-let toast = document.getElementById("orderToast");
+if(!toast){
+return;
+}
+
+if(text){
+text.innerHTML = message;
+}
+
 toast.classList.add("show");
-
 setTimeout(function(){
 toast.classList.remove("show");
 },1800);
@@ -1340,6 +1421,7 @@ let id = (item["Product ID"] || "").toLowerCase();
 return name.includes(value) || category.includes(value) || desc.includes(value) || id.includes(value);
 });
 
+updateCategoryActiveFromSearch(value);
 loadMainProducts(filtered,"Search Results");
 });
 
