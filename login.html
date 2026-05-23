@@ -12,6 +12,16 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:Arial,sans-serif;
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+}
+
+input,
+textarea{
+user-select:text;
+-webkit-user-select:text;
+-webkit-touch-callout:default;
 }
 
 body{
@@ -318,6 +328,15 @@ font-weight:900;
 cursor:pointer;
 }
 
+.popup-actions button:disabled{
+opacity:0.72;
+cursor:not-allowed;
+}
+
+.popup-actions button i{
+margin-right:8px;
+}
+
 .primary-action{
 background:linear-gradient(135deg,#1877F2,#0f6be8);
 color:white;
@@ -502,7 +521,7 @@ New user? <span onclick="openSignupFromMain()">Sign up</span>
 
 <div class="popup-actions">
 <button class="secondary-action" onclick="closePopups()">Back</button>
-<button class="primary-action" onclick="findPhone()">Find Phone</button>
+<button class="primary-action" id="findPhoneBtn" onclick="findPhone()">Find Phone</button>
 </div>
 </div>
 </div>
@@ -524,7 +543,7 @@ New user? <span onclick="openSignupFromMain()">Sign up</span>
 
 <div class="popup-actions">
 <button class="secondary-action" onclick="closePopups()">Back</button>
-<button class="primary-action" onclick="findName()">Find Name</button>
+<button class="primary-action" id="findNameBtn" onclick="findName()">Find Name</button>
 </div>
 </div>
 </div>
@@ -587,6 +606,24 @@ function fetchUsers(){
 return fetch(USER_API).then(function(res){
 return res.json();
 });
+}
+
+function setButtonLoading(button,text){
+if(!button){
+return;
+}
+
+button.disabled = true;
+button.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>${text}`;
+}
+
+function resetButton(button,text){
+if(!button){
+return;
+}
+
+button.disabled = false;
+button.innerHTML = text;
 }
 
 function openSignup(username,phone,message){
@@ -762,14 +799,19 @@ showToast("Signup server error. Try again.");
 
 function findPhone(){
 let username = document.getElementById("forgotUsername").value.trim();
+let btn = document.getElementById("findPhoneBtn");
 
 if(!username){
 showToast("Enter your name");
 return;
 }
 
+setButtonLoading(btn,"Searching Phone...");
+
 fetchUsers()
 .then(function(users){
+resetButton(btn,"Find Phone");
+
 let user = users.find(function(u){
 return sameName(u,username);
 });
@@ -782,12 +824,14 @@ showToast("Name not matching");
 }
 })
 .catch(function(){
+resetButton(btn,"Find Phone");
 showToast("Server error. Try again.");
 });
 }
 
 function findName(){
 let phone = document.getElementById("forgotPhone").value.trim();
+let btn = document.getElementById("findNameBtn");
 
 if(!phone){
 showToast("Enter your phone number");
@@ -799,8 +843,12 @@ showToast("Wrong phone number");
 return;
 }
 
+setButtonLoading(btn,"Searching Name...");
+
 fetchUsers()
 .then(function(users){
+resetButton(btn,"Find Name");
+
 let user = users.find(function(u){
 return samePhone(u,phone);
 });
@@ -813,6 +861,7 @@ showToast("Phone number not matching");
 }
 })
 .catch(function(){
+resetButton(btn,"Find Name");
 showToast("Server error. Try again.");
 });
 }
