@@ -827,6 +827,90 @@ font-weight:600;
 .order-toast-text b{
 color:#1877F2;
 }
+
+.seller-pin-overlay{
+position:fixed;
+inset:0;
+background:rgba(15,23,42,0.46);
+z-index:9500;
+display:none;
+align-items:flex-end;
+justify-content:center;
+padding:16px 14px 92px;
+}
+
+.seller-pin-overlay.active{
+display:flex;
+}
+
+.seller-pin-box{
+width:100%;
+max-width:430px;
+background:linear-gradient(180deg,#ffffff,#f3f8ff);
+border:1px solid #d6e7ff;
+border-radius:26px;
+padding:20px;
+box-shadow:0 18px 45px rgba(0,0,0,0.22),0 8px 22px rgba(24,119,242,0.18);
+}
+
+.seller-pin-title{
+font-size:24px;
+font-weight:900;
+line-height:30px;
+color:#071d33;
+text-align:center;
+}
+
+.seller-pin-text{
+font-size:14px;
+font-weight:700;
+line-height:22px;
+color:#5d6673;
+text-align:center;
+margin:8px 0 16px;
+}
+
+.seller-pin-input{
+width:100%;
+height:54px;
+border-radius:18px;
+border:1px solid #d6e7ff;
+background:white;
+outline:none;
+text-align:center;
+font-size:24px;
+font-weight:900;
+letter-spacing:8px;
+color:#071d33;
+}
+
+.seller-pin-actions{
+display:flex;
+gap:10px;
+margin-top:14px;
+}
+
+.seller-pin-actions button{
+flex:1;
+height:52px;
+border-radius:16px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+}
+
+.seller-pin-cancel{
+background:white;
+color:#1877F2;
+border:1px solid #b9d7ff;
+}
+
+.seller-pin-open{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+border:none;
+box-shadow:0 8px 18px rgba(24,119,242,0.24);
+}
 </style>
 </head>
 
@@ -876,11 +960,23 @@ color:#1877F2;
 </div>
 
 <div class="bottom-nav">
-<div class="nav-item active"><i class="fa-solid fa-house"></i><span>Home</span></div>
+<div class="nav-item active" onclick="handleHomeNavTap()"><i class="fa-solid fa-house"></i><span>Home</span></div>
 <div class="nav-item" onclick="window.location.href='products.html'"><i class="fa-solid fa-box"></i><span>Product</span></div>
 <div class="nav-item" onclick="window.location.href='cart.html'"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><div class="cart-badge" id="cartCount">0</div></div>
 <div class="nav-item" onclick="window.location.href='track.html'"><i class="fa-solid fa-truck"></i><span>Track</span></div>
 <div class="nav-item" onclick="window.location.href='grow.html'"><i class="fa-solid fa-chart-line"></i><span>Grow</span></div>
+</div>
+
+<div class="seller-pin-overlay" id="sellerPinOverlay">
+<div class="seller-pin-box">
+<div class="seller-pin-title">Seller Access</div>
+<div class="seller-pin-text">Enter PIN to open Dishari users.</div>
+<input class="seller-pin-input" id="sellerPinInput" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
+<div class="seller-pin-actions">
+<button class="seller-pin-cancel" onclick="closeSellerPin()">Cancel</button>
+<button class="seller-pin-open" onclick="openSellerUsers()">Open</button>
+</div>
+</div>
 </div>
 
 <div class="popup" id="popup">
@@ -929,11 +1025,19 @@ let currentBanner = 0;
 let bannerTimer = null;
 let orderToastTimer = null;
 let orderToastHideTimer = null;
+let homeNavTapCount = 0;
+let homeNavTapTimer = null;
 
 let user = localStorage.getItem("user");
 if(!user){
- window.location.href = "login.html";
+window.location.replace("login.html");
 }
+
+window.addEventListener("pageshow", function(){
+if(!localStorage.getItem("user")){
+window.location.replace("login.html");
+}
+});
 
 let hour = new Date().getHours();
 let greeting = "";
@@ -950,12 +1054,66 @@ document.getElementById("welcome").innerText = greeting + ", " + user;
 
 function logout(){
 localStorage.removeItem("user");
-window.location.href = "login.html";
+sessionStorage.setItem("dishariLoggedOut","yes");
+window.location.replace("login.html?logout=1");
 }
 
 function toggleProfileMenu(){
 let menu = document.getElementById("profileMenu");
 menu.style.display = menu.style.display == "block" ? "none" : "block";
+}
+
+function handleHomeNavTap(){
+homeNavTapCount++;
+
+if(homeNavTapTimer){
+clearTimeout(homeNavTapTimer);
+}
+
+homeNavTapTimer = setTimeout(function(){
+homeNavTapCount = 0;
+},1800);
+
+if(homeNavTapCount >= 5){
+homeNavTapCount = 0;
+openSellerPin();
+}
+}
+
+function openSellerPin(){
+let overlay = document.getElementById("sellerPinOverlay");
+let input = document.getElementById("sellerPinInput");
+
+if(!overlay || !input){
+return;
+}
+
+overlay.classList.add("active");
+input.value = "";
+setTimeout(function(){
+input.focus();
+},100);
+}
+
+function closeSellerPin(){
+let overlay = document.getElementById("sellerPinOverlay");
+
+if(overlay){
+overlay.classList.remove("active");
+}
+}
+
+function openSellerUsers(){
+let input = document.getElementById("sellerPinInput");
+let pin = input ? input.value.trim() : "";
+
+if(pin !== "7044"){
+showHomeCartToast("Wrong PIN");
+return;
+}
+
+sessionStorage.setItem("dishariUsersUnlocked","yes");
+window.location.href = "users.html";
 }
 
 function normalizeImageUrl(url){
@@ -1451,6 +1609,12 @@ loadMainProducts(filtered,"Search Results");
 document.getElementById("searchInput").addEventListener("keydown", function(e){
 if(e.key === "Enter"){
 this.blur();
+}
+});
+
+document.getElementById("sellerPinInput").addEventListener("keydown", function(e){
+if(e.key === "Enter"){
+openSellerUsers();
 }
 });
 
