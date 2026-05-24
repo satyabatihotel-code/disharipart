@@ -964,13 +964,13 @@ box-shadow:0 8px 18px rgba(24,119,242,0.24);
 <div class="nav-item" onclick="window.location.href='products.html'"><i class="fa-solid fa-box"></i><span>Product</span></div>
 <div class="nav-item" onclick="window.location.href='cart.html'"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><div class="cart-badge" id="cartCount">0</div></div>
 <div class="nav-item" onclick="window.location.href='track.html'"><i class="fa-solid fa-truck"></i><span>Track</span></div>
-<div class="nav-item" onclick="handleGrowNavTap()"><i class="fa-solid fa-chart-line"></i><span>Grow</span></div>
+<div class="nav-item" onclick="window.location.href='grow.html'"><i class="fa-solid fa-chart-line"></i><span>Grow</span></div>
 </div>
 
 <div class="seller-pin-overlay" id="sellerPinOverlay">
 <div class="seller-pin-box">
 <div class="seller-pin-title" id="sellerPinTitle">Seller Access</div>
-<div class="seller-pin-text" id="sellerPinText">Enter PIN to open seller tool.</div>
+<div class="seller-pin-text" id="sellerPinText">Enter PIN to open Dishari users.</div>
 <input class="seller-pin-input" id="sellerPinInput" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
 <div class="seller-pin-actions">
 <button class="seller-pin-cancel" onclick="closeSellerPin()">Cancel</button>
@@ -1027,9 +1027,6 @@ let orderToastTimer = null;
 let orderToastHideTimer = null;
 let homeNavTapCount = 0;
 let homeNavTapTimer = null;
-let growNavTapCount = 0;
-let growNavTapTimer = null;
-let sellerPinMode = "users";
 
 let user = localStorage.getItem("user");
 if(!user){
@@ -1079,50 +1076,16 @@ homeNavTapCount = 0;
 
 if(homeNavTapCount >= 5){
 homeNavTapCount = 0;
-openSellerPin("users");
+openSellerPin();
 }
 }
 
-function handleGrowNavTap(){
-growNavTapCount++;
-
-if(growNavTapTimer){
-clearTimeout(growNavTapTimer);
-}
-
-if(growNavTapCount >= 5){
-growNavTapCount = 0;
-openSellerPin("status");
-return;
-}
-
-growNavTapTimer = setTimeout(function(){
-growNavTapCount = 0;
-window.location.href = "grow.html";
-},650);
-}
-
-function openSellerPin(mode){
+function openSellerPin(){
 let overlay = document.getElementById("sellerPinOverlay");
 let input = document.getElementById("sellerPinInput");
-let title = document.getElementById("sellerPinTitle");
-let text = document.getElementById("sellerPinText");
 
 if(!overlay || !input){
 return;
-}
-
-sellerPinMode = mode || "users";
-
-if(title && text){
-if(sellerPinMode === "status"){
-title.innerText = "Status Control";
-text.innerText = "Enter PIN to update order status.";
-}
-else{
-title.innerText = "Seller Access";
-text.innerText = "Enter PIN to open Dishari users.";
-}
 }
 
 overlay.classList.add("active");
@@ -1146,12 +1109,6 @@ let pin = input ? input.value.trim() : "";
 
 if(pin !== "7044"){
 showHomeCartToast("Wrong PIN");
-return;
-}
-
-if(sellerPinMode === "status"){
-sessionStorage.setItem("dishariStatusUnlocked","yes");
-window.location.href = "status.html";
 return;
 }
 
