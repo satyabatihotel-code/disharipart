@@ -1397,10 +1397,17 @@ if(!button){
 return;
 }
 
-button.scrollIntoView({
+let container = document.getElementById("categories");
+
+if(!container){
+return;
+}
+
+let targetScroll = button.offsetLeft - (container.clientWidth / 2) + (button.offsetWidth / 2);
+
+container.scrollTo({
+left:Math.max(targetScroll,0),
 behavior:"smooth",
-block:"nearest",
-inline:"center"
 });
 }
 
