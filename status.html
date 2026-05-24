@@ -563,6 +563,11 @@ opacity:1;
 transform:translateY(0);
 }
 
+.toast.warning{
+background:linear-gradient(135deg,#fff7ed,#ffffff);
+color:#9a3412;
+}
+
 .bottom-nav{
 position:fixed;
 bottom:0;
@@ -709,6 +714,8 @@ Hidden seller tool
 const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
 const ORDERS_API = SCRIPT_API + "?type=orders";
 const SELLER_PIN = "7044";
+const AUTO_EXIT_MS = 50000;
+const WARNING_MS = 45000;
 
 const STATUS_OPTIONS = [
 {label:"Processing", value:"Order Processing"},
@@ -723,22 +730,24 @@ const STATUS_OPTIONS = [
 let allOrders = [];
 let filteredOrders = [];
 let toastTimer = null;
+let warningTimer = null;
+let exitTimer = null;
 
 function digitsOnly(input,maxLength){
 input.value = input.value.replace(/\D/g,"").slice(0,maxLength);
 }
 
-function showToast(message){
+function showToast(message,type){
 let toast = document.getElementById("toast");
 toast.innerText = message;
-toast.classList.add("show");
+toast.className = "toast show" + (type ? " " + type : "");
 
 if(toastTimer){
 clearTimeout(toastTimer);
 }
 
 toastTimer = setTimeout(function(){
-toast.classList.remove("show");
+toast.className = "toast";
 },2200);
 }
 
@@ -749,6 +758,7 @@ if(pin === SELLER_PIN){
 sessionStorage.setItem("dishariStatusUnlocked","yes");
 document.getElementById("pinOverlay").style.display = "none";
 loadOrders();
+startAutoExit();
 return;
 }
 
@@ -759,12 +769,43 @@ function guardPage(){
 if(sessionStorage.getItem("dishariStatusUnlocked") === "yes"){
 document.getElementById("pinOverlay").style.display = "none";
 loadOrders();
+startAutoExit();
 }
 }
 
 function exitStatus(){
 sessionStorage.removeItem("dishariStatusUnlocked");
-window.location.replace("home.html");
+window.location.replace("grow.html");
+}
+
+function startAutoExit(){
+resetAutoExit();
+
+["click","touchstart","scroll","keydown","input"].forEach(function(eventName){
+window.addEventListener(eventName, resetAutoExit, {passive:true});
+});
+}
+
+function resetAutoExit(){
+if(warningTimer){
+clearTimeout(warningTimer);
+}
+
+if(exitTimer){
+clearTimeout(exitTimer);
+}
+
+warningTimer = setTimeout(function(){
+showToast("Auto exit in 5 seconds","warning");
+},WARNING_MS);
+
+exitTimer = setTimeout(function(){
+sessionStorage.removeItem("dishariStatusUnlocked");
+showToast("Session expired");
+setTimeout(function(){
+window.location.replace("grow.html");
+},500);
+},AUTO_EXIT_MS);
 }
 
 function normalize(value){
