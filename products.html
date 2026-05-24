@@ -1169,10 +1169,58 @@ ${cat}
 document.getElementById("categories").innerHTML = html;
 }
 
+function scrollCategoryButtonIntoView(button){
+if(!button){
+return;
+}
+
+let container = document.getElementById("categories");
+
+if(!container){
+return;
+}
+
+let targetScroll = button.offsetLeft - (container.clientWidth / 2) + (button.offsetWidth / 2);
+
+container.scrollTo({
+left:Math.max(targetScroll,0),
+behavior:"smooth"
+});
+}
+
+function updateCategoryActiveFromSearch(value){
+let matchedButton = null;
+
+document.querySelectorAll(".category-btn").forEach(btn=>{
+let categoryText = btn.innerText.trim().toLowerCase();
+btn.classList.remove("active");
+
+if(!matchedButton && value && categoryText.includes(value)){
+matchedButton = btn;
+}
+});
+
+if(matchedButton){
+matchedButton.classList.add("active");
+scrollCategoryButtonIntoView(matchedButton);
+}
+else{
+let allButton = document.querySelector(".category-btn");
+
+if(allButton){
+allButton.classList.add("active");
+scrollCategoryButtonIntoView(allButton);
+}
+}
+}
+
 function filterCategory(category,el){
 selectedCategory = category;
+searchValue = "";
+document.getElementById("searchInput").value = "";
 document.querySelectorAll(".category-btn").forEach(btn=>btn.classList.remove("active"));
 el.classList.add("active");
+scrollCategoryButtonIntoView(el);
 applyFilters();
 }
 
@@ -1271,6 +1319,16 @@ updateCartCount();
 
 document.getElementById("searchInput").addEventListener("input",function(){
 searchValue = this.value.toLowerCase().trim();
+
+if(searchValue === ""){
+selectedCategory = "All";
+updateCategoryActiveFromSearch("");
+}
+else{
+selectedCategory = "All";
+updateCategoryActiveFromSearch(searchValue);
+}
+
 applyFilters();
 });
 
