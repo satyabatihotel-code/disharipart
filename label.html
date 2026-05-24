@@ -466,6 +466,65 @@ return order[names[i]];
 return "";
 }
 
+function countListItems(value){
+let text = String(value || "").trim();
+
+if(!text){
+return 0;
+}
+
+return text.split(",").map(item=>item.trim()).filter(item=>item).length;
+}
+
+function recoverDateLikeQuantities(value, order){
+let text = String(value || "").trim();
+
+if(!/^\d{4}-\d{2}-\d{2}T/.test(text)){
+return "";
+}
+
+let date = new Date(text);
+
+if(Number.isNaN(date.getTime())){
+return "";
+}
+
+let monthValue = date.getMonth() + 1;
+let dayValue = date.getDate();
+let productCount = Math.max(
+countListItems(getField(order,["Product IDs","productIds"])),
+countListItems(getField(order,["Product Names","productNames"]))
+);
+
+if(productCount === 2 && monthValue > 0 && dayValue > 0){
+return monthValue + ", " + dayValue;
+}
+
+return "";
+}
+
+function cleanQuantities(value, order){
+let recovered = recoverDateLikeQuantities(value, order);
+
+if(recovered){
+return recovered;
+}
+
+let text = String(value || "").trim();
+
+if(!text){
+return "";
+}
+
+return text
+.replace(/\bquantity\s*/gi,"")
+.replace(/\bqty\s*/gi,"")
+.replace(/\bpcs?\b/gi,"")
+.replace(/\s*,\s*/g,", ")
+.replace(/\s+/g," ")
+.trim();
+}
+
 function normalizeOrder(order){
 return {
 orderId:getField(order,["Order ID","orderId"]),
@@ -481,7 +540,7 @@ landmark:getField(order,["Landmark","landmark"]),
 productIds:getField(order,["Product IDs","productIds"]),
 productNames:getField(order,["Product Names","productNames"]),
 sizes:getField(order,["Sizes","sizes"]),
-quantities:getField(order,["Quantities","quantities"]),
+quantities:cleanQuantities(getField(order,["Quantities","quantities","Qty","qty","Quantity","quantity","Product Quantities","productQuantities"]), order),
 productPrices:getField(order,["Product Prices","productPrices"]),
 shipping:getField(order,["Shipping","shipping"]),
 orderTotal:getField(order,["Order Total","orderTotal"]),
