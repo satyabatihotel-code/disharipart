@@ -258,31 +258,105 @@ grid-template-columns:1fr 1fr;
 }
 
 @media print{
+html,
 body{
 background:white;
 padding:0;
+margin:0;
+width:100%;
+height:auto;
+overflow:visible;
 }
 
 .no-print{
 display:none!important;
 }
 
-.label-wrap{
-display:block!important;
-}
-
-.label{
-width:100mm;
+.page{
 max-width:none;
 margin:0;
-border:2px solid #111;
-box-shadow:none;
+padding:0;
+}
+
+.label-wrap{
+display:block!important;
+width:100%;
+margin:0;
+padding:0;
+break-inside:avoid;
 page-break-inside:avoid;
 }
 
+.label{
+width:86mm;
+max-width:none;
+margin:0 auto;
+border:1.5px solid #111;
+padding:8px;
+box-shadow:none;
+page-break-inside:avoid;
+break-inside:avoid;
+page-break-before:avoid;
+page-break-after:avoid;
+transform:scale(0.92);
+transform-origin:top center;
+}
+
+.label-head{
+padding-bottom:6px;
+margin-bottom:6px;
+border-bottom:1.5px solid #111;
+}
+
+.brand{
+font-size:22px;
+line-height:24px;
+}
+
+.label-small{
+font-size:8.5px;
+line-height:12px;
+}
+
+.qr{
+width:66px;
+height:66px;
+padding:2px;
+}
+
+.block{
+padding:5px 0;
+}
+
+.block-title{
+font-size:9px;
+padding:3px 6px;
+border-radius:4px;
+margin-bottom:4px;
+}
+
+.line{
+font-size:10px;
+line-height:15px;
+gap:4px;
+}
+
+.line b{
+min-width:70px;
+}
+
+.big{
+font-size:11px;
+line-height:16px;
+}
+
+.total{
+font-size:16px;
+}
+
 @page{
-size:100mm 150mm;
-margin:6mm;
+size:Letter;
+margin:5mm;
 }
 }
 </style>
