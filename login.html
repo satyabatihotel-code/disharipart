@@ -490,6 +490,84 @@ opacity:0.78;
 cursor:not-allowed;
 }
 
+.install-status-overlay{
+position:fixed;
+inset:0;
+background:rgba(7,29,51,0.52);
+display:none;
+align-items:center;
+justify-content:center;
+padding:20px;
+z-index:12000;
+backdrop-filter:blur(6px);
+}
+
+.install-status-overlay.show{
+display:flex;
+}
+
+.install-status-card{
+width:100%;
+max-width:390px;
+background:rgba(255,255,255,0.98);
+border:1px solid rgba(24,119,242,0.14);
+border-radius:28px;
+padding:30px 24px;
+text-align:center;
+box-shadow:0 24px 60px rgba(7,29,51,0.32);
+}
+
+.install-status-spinner{
+width:66px;
+height:66px;
+border-radius:50%;
+border:6px solid #eaf3ff;
+border-top-color:#1877F2;
+margin:0 auto 18px;
+animation:installSpin 0.85s linear infinite;
+}
+
+.install-status-check{
+width:66px;
+height:66px;
+border-radius:50%;
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+display:none;
+align-items:center;
+justify-content:center;
+font-size:28px;
+margin:0 auto 18px;
+box-shadow:0 10px 24px rgba(24,119,242,0.26);
+}
+
+.install-status-overlay.complete .install-status-spinner{
+display:none;
+}
+
+.install-status-overlay.complete .install-status-check{
+display:flex;
+}
+
+.install-status-title{
+font-size:24px;
+line-height:30px;
+font-weight:900;
+color:#071d33;
+}
+
+.install-status-message{
+font-size:15px;
+line-height:22px;
+font-weight:800;
+color:#607086;
+margin-top:8px;
+}
+
+@keyframes installSpin{
+100%{transform:rotate(360deg);}
+}
+
 button,
 a,
 span,
@@ -679,6 +757,15 @@ New user? <span onclick="openSignupFromMain()">Sign up</span>
 </div>
 </div>
 
+<div class="install-status-overlay" id="installStatusOverlay">
+<div class="install-status-card">
+<div class="install-status-spinner"></div>
+<div class="install-status-check"><i class="fa-solid fa-check"></i></div>
+<div class="install-status-title" id="installStatusTitle">Installing Dishari...</div>
+<div class="install-status-message" id="installStatusMessage">Please wait while Dishari is added to your home screen.</div>
+</div>
+</div>
+
 <script>
 const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
 const USER_API = SCRIPT_API + "?type=users";
@@ -762,6 +849,39 @@ subtitle.innerText = "For faster shopping and order tracking, add Dishari to you
 }
 }
 
+function showInstallStatus(type){
+let overlay = document.getElementById("installStatusOverlay");
+let title = document.getElementById("installStatusTitle");
+let message = document.getElementById("installStatusMessage");
+
+if(!overlay || !title || !message){
+return;
+}
+
+overlay.classList.remove("complete");
+
+if(type === "complete"){
+overlay.classList.add("complete");
+title.innerText = "Installation Complete";
+message.innerText = "Dishari App is now on your home screen.";
+}
+else{
+title.innerText = "Installing Dishari...";
+message.innerText = "Please wait while Dishari is added to your home screen.";
+}
+
+overlay.classList.add("show");
+}
+
+function hideInstallStatus(){
+let overlay = document.getElementById("installStatusOverlay");
+
+if(overlay){
+overlay.classList.remove("show");
+overlay.classList.remove("complete");
+}
+}
+
 function installDishariApp(){
 if(deferredInstallPrompt){
 setInstallLoading(true);
@@ -771,21 +891,19 @@ deferredInstallPrompt = null;
 
 if(choice.outcome === "accepted"){
 localStorage.setItem("dishariInstallLaterUntil",String(Date.now() + (24 * 60 * 60 * 1000)));
-setTimeout(function(){
-if(!installCompleted){
 hideInstallBanner(30);
-setInstallLoading(false);
-}
-},1200);
+showInstallStatus("installing");
 }
 else{
 setInstallLoading(false);
+hideInstallStatus();
 showToast("Install cancelled. You can install later.");
 hideInstallBanner(2);
 }
 }).catch(function(){
 deferredInstallPrompt = null;
 setInstallLoading(false);
+hideInstallStatus();
 showToast("Install cancelled. You can install later.");
 hideInstallBanner(2);
 });
@@ -813,7 +931,8 @@ clearTimeout(installReminderTimer);
 }
 setInstallLoading(false);
 hideInstallBanner(1440);
-showToast("Installation complete. Dishari app is now on your home screen.");
+showInstallStatus("complete");
+setTimeout(hideInstallStatus,3500);
 });
 
 window.addEventListener("load",function(){
