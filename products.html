@@ -805,6 +805,191 @@ font-weight:600;
 .order-toast-text b{
 color:#1877F2;
 }
+
+.install-overlay{
+position:fixed;
+inset:0;
+background:rgba(7,29,51,0.38);
+display:none;
+align-items:flex-end;
+justify-content:center;
+padding:18px 14px calc(112px + env(safe-area-inset-bottom));
+z-index:4500;
+backdrop-filter:blur(3px);
+}
+
+.install-overlay.show{
+display:flex;
+}
+
+.install-banner{
+width:100%;
+max-width:460px;
+background:rgba(255,255,255,0.98);
+border:1px solid rgba(24,119,242,0.12);
+border-radius:28px;
+box-shadow:0 22px 52px rgba(7,29,51,0.28);
+padding:22px 18px 18px;
+backdrop-filter:blur(12px);
+}
+
+.install-top{
+display:flex;
+align-items:center;
+gap:14px;
+}
+
+.install-icon{
+width:64px;
+height:64px;
+border-radius:20px;
+background:linear-gradient(135deg,#2b92ff,#1877F2);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+flex-shrink:0;
+box-shadow:0 8px 18px rgba(24,119,242,0.24);
+}
+
+.install-text{
+flex:1;
+min-width:0;
+}
+
+.install-title{
+font-size:22px;
+font-weight:900;
+color:#071d33;
+line-height:28px;
+}
+
+.install-subtitle{
+font-size:14px;
+font-weight:700;
+color:#607086;
+line-height:21px;
+margin-top:4px;
+}
+
+.install-actions{
+display:flex;
+gap:10px;
+margin-top:18px;
+}
+
+.install-actions button{
+border:none;
+border-radius:17px;
+height:52px;
+padding:0 16px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+flex:1;
+}
+
+.install-later{
+background:#eef5ff;
+color:#1877F2;
+}
+
+.install-now{
+background:#1877F2;
+color:white;
+box-shadow:0 7px 14px rgba(24,119,242,0.20);
+}
+
+.install-now:disabled{
+opacity:0.78;
+cursor:not-allowed;
+}
+
+.seller-pin-overlay{
+position:fixed;
+inset:0;
+background:rgba(7,29,51,0.42);
+display:none;
+align-items:center;
+justify-content:center;
+padding:18px;
+z-index:7000;
+backdrop-filter:blur(5px);
+}
+
+.seller-pin-overlay.active{
+display:flex;
+}
+
+.seller-pin-box{
+width:100%;
+max-width:360px;
+background:linear-gradient(180deg,#ffffff,#f3f8ff);
+border:1px solid #d6e7ff;
+border-radius:24px;
+padding:20px;
+box-shadow:0 18px 44px rgba(7,29,51,0.25);
+}
+
+.seller-pin-title{
+font-size:24px;
+font-weight:900;
+color:#071d33;
+text-align:center;
+}
+
+.seller-pin-text{
+font-size:14px;
+font-weight:700;
+color:#607086;
+line-height:20px;
+text-align:center;
+margin-top:8px;
+}
+
+.seller-pin-input{
+width:100%;
+height:58px;
+border:1px solid #d6e7ff;
+border-radius:18px;
+margin-top:16px;
+background:white;
+outline:none;
+text-align:center;
+font-size:24px;
+font-weight:900;
+letter-spacing:8px;
+color:#071d33;
+}
+
+.seller-pin-actions{
+display:flex;
+gap:10px;
+margin-top:14px;
+}
+
+.seller-pin-actions button{
+flex:1;
+height:52px;
+border-radius:16px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+}
+
+.seller-pin-cancel{
+background:white;
+color:#1877F2;
+border:1px solid #b9d7ff;
+}
+
+.seller-pin-open{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+border:none;
+box-shadow:0 8px 18px rgba(24,119,242,0.24);
+}
 </style>
 </head>
 
@@ -846,7 +1031,7 @@ color:#1877F2;
 <div class="size-toast-icon">
 <i class="fa-solid fa-circle-exclamation"></i>
 </div>
-<div class="size-toast-text">Please select a size</div>
+<div class="size-toast-text" id="sizeToastText">Please select a size</div>
 </div>
 <div class="order-toast" id="orderToast">
 <div class="order-toast-icon">
@@ -855,12 +1040,42 @@ color:#1877F2;
 <div class="order-toast-text" id="orderToastText"></div>
 </div>
 
+<div class="install-overlay" id="installBanner">
+<div class="install-banner">
+<div class="install-top">
+<div class="install-icon">
+<i class="fa-solid fa-bag-shopping"></i>
+</div>
+<div class="install-text">
+<div class="install-title">Install Dishari App</div>
+<div class="install-subtitle" id="installSubtitle">For faster shopping and order tracking, add Dishari to your home screen.</div>
+</div>
+</div>
+<div class="install-actions">
+<button class="install-later" id="installLaterBtn" onclick="hideInstallBanner(2,true)">Later</button>
+<button class="install-now" id="installNowBtn" onclick="installDishariApp()">Install App</button>
+</div>
+</div>
+</div>
+
 <div class="bottom-nav">
 <div class="nav-item" onclick="window.location.href='home.html'"><i class="fa-solid fa-house"></i><span>Home</span></div>
-<div class="nav-item active" onclick="window.location.href='products.html'"><i class="fa-solid fa-box"></i><span>Product</span></div>
+<div class="nav-item active" onclick="handleProductNavTap()"><i class="fa-solid fa-box"></i><span>Product</span></div>
 <div class="nav-item" onclick="window.location.href='cart.html'"><i class="fa-solid fa-cart-shopping"></i><span>Cart</span><div class="cart-badge" id="cartCount">0</div></div>
 <div class="nav-item" onclick="window.location.href='track.html'"><i class="fa-solid fa-truck"></i><span>Track</span></div>
 <div class="nav-item" onclick="window.location.href='grow.html'"><i class="fa-solid fa-chart-line"></i><span>Grow</span></div>
+</div>
+
+<div class="seller-pin-overlay" id="sellerPinOverlay">
+<div class="seller-pin-box">
+<div class="seller-pin-title">Product Upload</div>
+<div class="seller-pin-text">Enter seller PIN to upload or edit products.</div>
+<input class="seller-pin-input" id="sellerPinInput" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
+<div class="seller-pin-actions">
+<button class="seller-pin-cancel" onclick="closeSellerPin()">Cancel</button>
+<button class="seller-pin-open" onclick="openUploadPage()">Open</button>
+</div>
+</div>
 </div>
 
 <div class="popup" id="popup">
@@ -909,6 +1124,138 @@ let searchValue = "";
 
 let orderToastTimer = null;
 let orderToastHideTimer = null;
+let deferredInstallPrompt = null;
+let installCompleted = false;
+let installReminderTimer = null;
+let productNavTapCount = 0;
+let productNavTapTimer = null;
+
+function isStandaloneApp(){
+return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+}
+
+function canShowInstallBanner(){
+let laterUntil = Number(localStorage.getItem("dishariInstallLaterUntil")) || 0;
+return !isStandaloneApp() && Date.now() > laterUntil;
+}
+
+function showInstallBanner(){
+let banner = document.getElementById("installBanner");
+
+if(banner && canShowInstallBanner()){
+banner.classList.add("show");
+}
+}
+
+function scheduleInstallReminder(delay){
+if(installReminderTimer){
+clearTimeout(installReminderTimer);
+}
+
+if(isStandaloneApp() || installCompleted){
+return;
+}
+
+installReminderTimer = setTimeout(showInstallBanner,delay);
+}
+
+function hideInstallBanner(minutes,showReminder){
+let banner = document.getElementById("installBanner");
+
+if(minutes){
+localStorage.setItem("dishariInstallLaterUntil",String(Date.now() + (minutes * 60 * 1000)));
+}
+
+if(banner){
+banner.classList.remove("show");
+}
+
+if(showReminder){
+showSizeToastMessage("For better experience, install Dishari app");
+}
+
+scheduleInstallReminder((minutes || 2) * 60 * 1000);
+}
+
+function setInstallLoading(isLoading){
+let btn = document.getElementById("installNowBtn");
+let later = document.getElementById("installLaterBtn");
+let subtitle = document.getElementById("installSubtitle");
+
+if(!btn || !later || !subtitle){
+return;
+}
+
+if(isLoading){
+btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Installing...`;
+btn.disabled = true;
+later.disabled = true;
+subtitle.innerText = "Please confirm in Chrome popup";
+}
+else{
+btn.innerHTML = "Install App";
+btn.disabled = false;
+later.disabled = false;
+subtitle.innerText = "For faster shopping and order tracking, add Dishari to your home screen.";
+}
+}
+
+function installDishariApp(){
+if(deferredInstallPrompt){
+setInstallLoading(true);
+deferredInstallPrompt.prompt();
+deferredInstallPrompt.userChoice.then(function(choice){
+deferredInstallPrompt = null;
+
+if(choice.outcome === "accepted"){
+localStorage.setItem("dishariInstallLaterUntil",String(Date.now() + (24 * 60 * 60 * 1000)));
+setTimeout(function(){
+if(!installCompleted){
+hideInstallBanner(30);
+setInstallLoading(false);
+}
+},1200);
+}
+else{
+setInstallLoading(false);
+showSizeToastMessage("Install cancelled. You can install later.");
+hideInstallBanner(2);
+}
+}).catch(function(){
+deferredInstallPrompt = null;
+setInstallLoading(false);
+showSizeToastMessage("Install cancelled. You can install later.");
+hideInstallBanner(2);
+});
+return;
+}
+
+showSizeToastMessage("Open Chrome menu and tap Install app");
+}
+
+window.addEventListener("beforeinstallprompt",function(event){
+event.preventDefault();
+deferredInstallPrompt = event;
+scheduleInstallReminder(2500);
+});
+
+window.addEventListener("appinstalled",function(){
+installCompleted = true;
+if(installReminderTimer){
+clearTimeout(installReminderTimer);
+}
+setInstallLoading(false);
+hideInstallBanner(1440);
+showSizeToastMessage("Installation complete. Dishari app is now on your home screen.");
+});
+
+window.addEventListener("load",function(){
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js").catch(function(){});
+}
+
+scheduleInstallReminder(2500);
+});
 
 let user = localStorage.getItem("user");
 if(!user){
@@ -959,6 +1306,59 @@ function imageLoaded(img){
 img.classList.add("loaded");
 }
 
+function handleProductNavTap(){
+productNavTapCount++;
+
+if(productNavTapTimer){
+clearTimeout(productNavTapTimer);
+}
+
+productNavTapTimer = setTimeout(function(){
+productNavTapCount = 0;
+},1800);
+
+if(productNavTapCount >= 5){
+productNavTapCount = 0;
+openSellerPin();
+}
+}
+
+function openSellerPin(){
+let overlay = document.getElementById("sellerPinOverlay");
+let input = document.getElementById("sellerPinInput");
+
+if(!overlay || !input){
+return;
+}
+
+overlay.classList.add("active");
+input.value = "";
+setTimeout(function(){
+input.focus();
+},100);
+}
+
+function closeSellerPin(){
+let overlay = document.getElementById("sellerPinOverlay");
+
+if(overlay){
+overlay.classList.remove("active");
+}
+}
+
+function openUploadPage(){
+let input = document.getElementById("sellerPinInput");
+let pin = input ? input.value.trim() : "";
+
+if(pin !== "7044"){
+showSizeToastMessage("Wrong PIN");
+return;
+}
+
+sessionStorage.setItem("dishariUploadUnlocked","yes");
+window.location.href = "upload.html";
+}
+
 function getProductPrice(product){
 let priceText = String(product["Price"] || "0").replace(/[^\d.]/g,"");
 return Number(priceText) || 0;
@@ -990,7 +1390,7 @@ document.getElementById("mainProducts").innerHTML = productHTML;
 function prepareVisibleProducts(data){
 return data.filter(product => {
 let showValue = (product["Show"] || "").toString().trim().toLowerCase();
-return showValue === "yes" || showValue === "new";
+return showValue === "yes";
 });
 }
 
@@ -1129,7 +1529,7 @@ data.forEach((product,index)=>{
 let imageUrl = normalizeImageUrl(product["Image Url"] || "");
 html += `
 <div class="product-card" onclick='openPopup(${JSON.stringify(product)})'>
-${String(product["Show"] || "").toLowerCase() === "new" ? '<div class="new-badge">NEW</div>' : ''}
+${String(product["Category"] || "").trim().toLowerCase() === "new arrivals" ? '<div class="new-badge">NEW</div>' : ''}
 <img
 src="${imageUrl}"
 loading="${index < 4 ? "eager" : "lazy"}"
@@ -1242,6 +1642,16 @@ updateCartCount();
 }
 let sizeToastTimer = null;
 
+function showSizeToastMessage(message){
+let text = document.getElementById("sizeToastText");
+
+if(text){
+text.innerText = message;
+}
+
+showSizeToast();
+}
+
 function showSizeToast(){
 let toast = document.getElementById("sizeToast");
 
@@ -1265,7 +1675,7 @@ return;
 }
 
 if(!selectedPopupSize){
-showSizeToast();
+showSizeToastMessage("Please select a size");
 return;
 }
 
