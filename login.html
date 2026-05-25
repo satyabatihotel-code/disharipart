@@ -686,6 +686,7 @@ const USER_API = SCRIPT_API + "?type=users";
 let toastTimer = null;
 let deferredInstallPrompt = null;
 let installCompleted = false;
+let installReminderTimer = null;
 
 function isStandaloneApp(){
 return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
@@ -708,6 +709,18 @@ banner.classList.add("show");
 }
 }
 
+function scheduleInstallReminder(delay){
+if(installReminderTimer){
+clearTimeout(installReminderTimer);
+}
+
+if(isStandaloneApp() || installCompleted){
+return;
+}
+
+installReminderTimer = setTimeout(showInstallBanner,delay);
+}
+
 function hideInstallBanner(minutes,showReminder){
 let banner = document.getElementById("installBanner");
 
@@ -721,8 +734,9 @@ banner.classList.remove("show");
 
 if(showReminder){
 showToast("For better experience, install Dishari app");
-setTimeout(showInstallBanner,minutes * 60 * 1000);
 }
+
+scheduleInstallReminder((minutes || 2) * 60 * 1000);
 }
 
 function setInstallLoading(isLoading){
@@ -789,11 +803,14 @@ showToast("Open Chrome menu and tap Install app");
 window.addEventListener("beforeinstallprompt",function(event){
 event.preventDefault();
 deferredInstallPrompt = event;
-setTimeout(showInstallBanner,2500);
+scheduleInstallReminder(2500);
 });
 
 window.addEventListener("appinstalled",function(){
 installCompleted = true;
+if(installReminderTimer){
+clearTimeout(installReminderTimer);
+}
 setInstallLoading(false);
 hideInstallBanner(1440);
 showToast("Installation complete. Dishari app is now on your home screen.");
@@ -804,9 +821,7 @@ if("serviceWorker" in navigator){
 navigator.serviceWorker.register("sw.js").catch(function(){});
 }
 
-if(isIosDevice()){
-setTimeout(showInstallBanner,2500);
-}
+scheduleInstallReminder(2500);
 });
 
 function digitsOnly(input,maxLength){
