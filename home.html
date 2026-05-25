@@ -1304,7 +1304,7 @@ if(isLoading){
 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Installing...`;
 btn.disabled = true;
 later.disabled = true;
-subtitle.innerText = "Please confirm in Chrome popup";
+subtitle.innerText = "Tap Install to Start App Setup";
 }
 else{
 btn.innerHTML = "Install App";
@@ -1405,7 +1405,7 @@ clearTimeout(installCompleteTimer);
 installCompleteTimer = setTimeout(function(){
 showInstallStatus("complete");
 setTimeout(hideInstallStatus,3500);
-},10000);
+},20000);
 });
 
 window.addEventListener("load",function(){
