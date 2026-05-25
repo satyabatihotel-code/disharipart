@@ -549,6 +549,11 @@ display:none;
 display:flex;
 }
 
+.install-status-overlay.complete .install-progress,
+.install-status-overlay.complete .install-percent{
+display:none;
+}
+
 .install-status-title{
 font-size:24px;
 line-height:30px;
@@ -562,6 +567,31 @@ line-height:22px;
 font-weight:800;
 color:#607086;
 margin-top:8px;
+}
+
+.install-percent{
+font-size:26px;
+line-height:32px;
+font-weight:900;
+color:#1877F2;
+margin-top:18px;
+}
+
+.install-progress{
+height:12px;
+background:#eaf3ff;
+border-radius:999px;
+overflow:hidden;
+margin-top:10px;
+box-shadow:inset 0 1px 4px rgba(24,119,242,0.10);
+}
+
+.install-progress-bar{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#1877F2,#4e9cff);
+border-radius:999px;
+transition:width 0.35s ease;
 }
 
 @keyframes installSpin{
@@ -763,6 +793,10 @@ New user? <span onclick="openSignupFromMain()">Sign up</span>
 <div class="install-status-check"><i class="fa-solid fa-check"></i></div>
 <div class="install-status-title" id="installStatusTitle">Installing Dishari...</div>
 <div class="install-status-message" id="installStatusMessage">Please wait while Dishari is being added to your home screen.</div>
+<div class="install-percent" id="installPercent">0%</div>
+<div class="install-progress">
+<div class="install-progress-bar" id="installProgressBar"></div>
+</div>
 </div>
 </div>
 
@@ -775,6 +809,7 @@ let deferredInstallPrompt = null;
 let installCompleted = false;
 let installReminderTimer = null;
 let installCompleteTimer = null;
+let installProgressTimer = null;
 
 function isStandaloneApp(){
 return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
@@ -854,8 +889,10 @@ function showInstallStatus(type){
 let overlay = document.getElementById("installStatusOverlay");
 let title = document.getElementById("installStatusTitle");
 let message = document.getElementById("installStatusMessage");
+let percent = document.getElementById("installPercent");
+let progress = document.getElementById("installProgressBar");
 
-if(!overlay || !title || !message){
+if(!overlay || !title || !message || !percent || !progress){
 return;
 }
 
@@ -865,17 +902,73 @@ if(type === "complete"){
 overlay.classList.add("complete");
 title.innerText = "Installation Complete";
 message.innerText = "Dishari App is now on your home screen.";
+percent.innerText = "100%";
+progress.style.width = "100%";
 }
 else{
 title.innerText = "Installing Dishari...";
 message.innerText = "Please wait while Dishari is being added to your home screen.";
+percent.innerText = "0%";
+progress.style.width = "0%";
 }
 
 overlay.classList.add("show");
 }
 
+function setInstallProgress(value){
+let percent = document.getElementById("installPercent");
+let progress = document.getElementById("installProgressBar");
+let safeValue = Math.max(0,Math.min(100,Math.round(value)));
+
+if(percent){
+percent.innerText = safeValue + "%";
+}
+
+if(progress){
+progress.style.width = safeValue + "%";
+}
+}
+
+function startInstallProgress(duration,done){
+let startTime = Date.now();
+
+if(installProgressTimer){
+clearInterval(installProgressTimer);
+}
+
+setInstallProgress(0);
+
+installProgressTimer = setInterval(function(){
+let elapsed = Date.now() - startTime;
+let progress = Math.min(elapsed / duration,1);
+let eased = 1 - Math.pow(1 - progress,2);
+let value = Math.min(99,eased * 100);
+
+setInstallProgress(value);
+
+if(progress >= 1){
+clearInterval(installProgressTimer);
+installProgressTimer = null;
+setInstallProgress(100);
+
+if(done){
+done();
+}
+}
+},450);
+}
+
+function stopInstallProgress(){
+if(installProgressTimer){
+clearInterval(installProgressTimer);
+installProgressTimer = null;
+}
+}
+
 function hideInstallStatus(){
 let overlay = document.getElementById("installStatusOverlay");
+
+stopInstallProgress();
 
 if(overlay){
 overlay.classList.remove("show");
@@ -938,10 +1031,10 @@ if(installCompleteTimer){
 clearTimeout(installCompleteTimer);
 }
 
-installCompleteTimer = setTimeout(function(){
+startInstallProgress(30000,function(){
 showInstallStatus("complete");
 setTimeout(hideInstallStatus,3500);
-},20000);
+});
 });
 
 window.addEventListener("load",function(){
