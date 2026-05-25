@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<link rel="dns-prefetch" href="https://script.google.com">
+<link rel="dns-prefetch" href="https://script.googleusercontent.com">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dishari Upload</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1877F2">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f0f2f5;
+color:#071d33;
+padding-bottom:24px;
+overflow-x:hidden;
+}
+
+button,
+.chip,
+.icon-btn{
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
+-webkit-tap-highlight-color:transparent;
+touch-action:manipulation;
+}
+
+.header{
+position:sticky;
+top:0;
+z-index:50;
+background:rgba(255,255,255,0.96);
+backdrop-filter:blur(12px);
+padding:14px 16px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+box-shadow:0 2px 12px rgba(7,29,51,0.08);
+}
+
+.header-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.back-btn{
+width:42px;
+height:42px;
+border:none;
+border-radius:50%;
+background:#eef5ff;
+color:#1877F2;
+font-size:17px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+}
+
+.brand-title{
+font-size:20px;
+font-weight:900;
+line-height:24px;
+}
+
+.brand-subtitle{
+font-size:12px;
+font-weight:800;
+color:#607086;
+line-height:17px;
+}
+
+.draft-btn{
+border:none;
+border-radius:14px;
+background:#fff2f2;
+color:#d62828;
+height:40px;
+padding:0 12px;
+font-weight:900;
+font-size:12px;
+cursor:pointer;
+}
+
+.pin-screen{
+min-height:100vh;
+display:none;
+align-items:center;
+justify-content:center;
+padding:22px;
+background:linear-gradient(180deg,#eef6ff,#f7fbff);
+}
+
+.pin-card{
+width:100%;
+max-width:380px;
+background:white;
+border-radius:26px;
+padding:24px;
+box-shadow:0 18px 42px rgba(7,29,51,0.14);
+border:1px solid #d6e7ff;
+}
+
+.pin-icon{
+width:68px;
+height:68px;
+border-radius:22px;
+background:linear-gradient(135deg,#2b92ff,#1877F2);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+margin:0 auto 14px;
+box-shadow:0 10px 22px rgba(24,119,242,0.24);
+}
+
+.pin-title{
+text-align:center;
+font-size:26px;
+font-weight:900;
+}
+
+.pin-text{
+text-align:center;
+font-size:14px;
+font-weight:700;
+line-height:21px;
+color:#607086;
+margin-top:8px;
+}
+
+.pin-input{
+width:100%;
+height:58px;
+border:1px solid #d6e7ff;
+border-radius:18px;
+margin-top:18px;
+background:#f8fbff;
+outline:none;
+text-align:center;
+font-size:24px;
+font-weight:900;
+letter-spacing:8px;
+color:#071d33;
+}
+
+.pin-actions{
+display:flex;
+gap:10px;
+margin-top:14px;
+}
+
+.pin-actions button{
+flex:1;
+height:52px;
+border-radius:16px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+}
+
+.secondary-btn{
+background:white;
+color:#1877F2;
+border:1px solid #b9d7ff;
+}
+
+.primary-btn{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+border:none;
+box-shadow:0 8px 18px rgba(24,119,242,0.24);
+}
+
+.app{
+display:none;
+}
+
+.hero{
+padding:18px 16px 12px;
+background:linear-gradient(180deg,#ffffff,#eef6ff);
+}
+
+.progress-card{
+background:white;
+border:1px solid #d6e7ff;
+border-radius:24px;
+padding:16px;
+box-shadow:0 12px 28px rgba(24,119,242,0.10);
+}
+
+.step-meta{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+}
+
+.step-name{
+font-size:24px;
+font-weight:900;
+}
+
+.step-count{
+font-size:12px;
+font-weight:900;
+color:#1877F2;
+background:#eef5ff;
+border-radius:999px;
+padding:8px 11px;
+white-space:nowrap;
+}
+
+.progress-track{
+height:9px;
+background:#e7eef8;
+border-radius:999px;
+overflow:hidden;
+margin-top:14px;
+}
+
+.progress-fill{
+height:100%;
+width:12.5%;
+background:linear-gradient(135deg,#1877F2,#2b92ff);
+border-radius:999px;
+transition:0.25s ease;
+}
+
+.stage-labels{
+display:flex;
+gap:8px;
+overflow-x:auto;
+padding-top:12px;
+scrollbar-width:none;
+}
+
+.stage-labels::-webkit-scrollbar{
+display:none;
+}
+
+.stage-pill{
+flex:0 0 auto;
+border-radius:999px;
+background:#edf2f8;
+color:#7a8798;
+font-size:11px;
+font-weight:900;
+padding:8px 10px;
+}
+
+.stage-pill.done{
+background:#e8f8ef;
+color:#10883f;
+}
+
+.stage-pill.active{
+background:#1877F2;
+color:white;
+}
+
+.content{
+padding:14px 16px 100px;
+}
+
+.panel{
+background:white;
+border-radius:24px;
+padding:16px;
+box-shadow:0 10px 26px rgba(7,29,51,0.08);
+border:1px solid rgba(24,119,242,0.08);
+}
+
+.panel + .panel{
+margin-top:14px;
+}
+
+.stage-title{
+font-size:22px;
+font-weight:900;
+margin-bottom:8px;
+}
+
+.helper{
+font-size:13px;
+font-weight:700;
+line-height:20px;
+color:#607086;
+margin-bottom:14px;
+}
+
+.chip-grid{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.chip{
+border:1px solid #d6e7ff;
+background:#f8fbff;
+color:#071d33;
+border-radius:16px;
+min-height:46px;
+padding:0 14px;
+font-size:14px;
+font-weight:900;
+cursor:pointer;
+box-shadow:0 4px 12px rgba(7,29,51,0.04);
+}
+
+.chip.active{
+background:#1877F2;
+color:white;
+border-color:#1877F2;
+box-shadow:0 8px 18px rgba(24,119,242,0.22);
+}
+
+.chip.danger.active{
+background:#dc3545;
+border-color:#dc3545;
+}
+
+.input-group{
+margin-top:14px;
+}
+
+.input-label{
+font-size:13px;
+font-weight:900;
+color:#071d33;
+margin-bottom:8px;
+display:flex;
+justify-content:space-between;
+gap:10px;
+}
+
+.input-label button{
+border:none;
+background:#eef5ff;
+color:#1877F2;
+border-radius:999px;
+font-size:11px;
+font-weight:900;
+padding:6px 9px;
+cursor:pointer;
+}
+
+.field,
+.textarea{
+width:100%;
+border:1px solid #d6e7ff;
+background:#f8fbff;
+border-radius:18px;
+outline:none;
+font-size:16px;
+font-weight:800;
+color:#071d33;
+padding:14px 15px;
+}
+
+.field{
+height:54px;
+}
+
+.textarea{
+min-height:112px;
+resize:vertical;
+line-height:22px;
+}
+
+.custom-row{
+display:none;
+margin-top:12px;
+}
+
+.custom-row.active{
+display:block;
+}
+
+.warning-box{
+margin-top:14px;
+background:#fff8e5;
+border:1px solid #ffe0a3;
+border-radius:18px;
+padding:12px;
+font-size:13px;
+line-height:20px;
+font-weight:800;
+color:#795100;
+}
+
+.edit-search{
+display:flex;
+gap:10px;
+}
+
+.edit-search input{
+flex:1;
+}
+
+.edit-list{
+margin-top:14px;
+display:grid;
+gap:10px;
+max-height:360px;
+overflow:auto;
+padding-right:2px;
+}
+
+.edit-card{
+background:#f8fbff;
+border:1px solid #d6e7ff;
+border-radius:18px;
+padding:12px;
+display:grid;
+grid-template-columns:64px 1fr;
+gap:12px;
+align-items:center;
+cursor:pointer;
+}
+
+.edit-card img{
+width:64px;
+height:64px;
+object-fit:contain;
+border-radius:14px;
+background:white;
+}
+
+.edit-card-title{
+font-size:14px;
+font-weight:900;
+line-height:20px;
+}
+
+.edit-card-meta{
+font-size:12px;
+font-weight:800;
+color:#607086;
+line-height:18px;
+margin-top:2px;
+}
+
+.review-card{
+display:grid;
+grid-template-columns:92px 1fr;
+gap:12px;
+align-items:start;
+}
+
+.review-img{
+width:92px;
+height:118px;
+object-fit:contain;
+border-radius:18px;
+background:#f8fbff;
+border:1px solid #d6e7ff;
+padding:6px;
+}
+
+.review-title{
+font-size:20px;
+font-weight:900;
+line-height:25px;
+}
+
+.review-meta{
+font-size:13px;
+font-weight:800;
+line-height:21px;
+color:#607086;
+margin-top:6px;
+}
+
+.review-price{
+font-size:24px;
+font-weight:900;
+color:#1877F2;
+margin-top:8px;
+}
+
+.summary-grid{
+margin-top:14px;
+display:grid;
+gap:8px;
+}
+
+.summary-row{
+display:flex;
+justify-content:space-between;
+gap:12px;
+padding:10px 0;
+border-bottom:1px solid #eef2f7;
+font-size:14px;
+line-height:20px;
+}
+
+.summary-row b{
+color:#071d33;
+}
+
+.summary-row span{
+text-align:right;
+font-weight:800;
+color:#607086;
+word-break:break-word;
+}
+
+.stage{
+display:none;
+}
+
+.stage.active{
+display:block;
+}
+
+.footer-actions{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+background:rgba(255,255,255,0.96);
+backdrop-filter:blur(12px);
+box-shadow:0 -8px 22px rgba(7,29,51,0.08);
+display:flex;
+gap:10px;
+padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+z-index:40;
+}
+
+.footer-actions button{
+flex:1;
+height:56px;
+border-radius:17px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+}
+
+.footer-back{
+background:white;
+border:1px solid #b9d7ff;
+color:#1877F2;
+}
+
+.footer-next,
+.footer-upload{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+border:none;
+color:white;
+box-shadow:0 8px 18px rgba(24,119,242,0.24);
+}
+
+.footer-upload:disabled{
+opacity:0.72;
+cursor:not-allowed;
+}
+
+.toast{
+position:fixed;
+left:16px;
+right:16px;
+bottom:88px;
+max-width:430px;
+margin:auto;
+background:white;
+border-radius:18px;
+box-shadow:0 12px 30px rgba(24,119,242,0.22);
+min-height:56px;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:12px 16px;
+font-size:15px;
+font-weight:900;
+z-index:9000;
+opacity:0;
+pointer-events:none;
+transform:translateY(18px);
+transition:0.25s ease;
+}
+
+.toast.show{
+opacity:1;
+transform:translateY(0);
+}
+</style>
+</head>
+
+<body>
+<div class="pin-screen" id="pinScreen">
+<div class="pin-card">
+<div class="pin-icon"><i class="fa-solid fa-upload"></i></div>
+<div class="pin-title">Upload Product</div>
+<div class="pin-text">Enter seller PIN to upload or edit Dishari products.</div>
+<input class="pin-input" id="pinInput" type="tel" inputmode="numeric" maxlength="4" placeholder="PIN" oninput="digitsOnly(this,4)">
+<div class="pin-actions">
+<button class="secondary-btn" onclick="window.location.href='products.html'">Back</button>
+<button class="primary-btn" onclick="unlockUpload()">Open</button>
+</div>
+</div>
+</div>
+
+<div class="app" id="app">
+<div class="header">
+<div class="header-left">
+<button class="back-btn" onclick="window.location.href='products.html'"><i class="fa-solid fa-arrow-left"></i></button>
+<div>
+<div class="brand-title">Dishari Upload</div>
+<div class="brand-subtitle" id="modeText">New product</div>
+</div>
+</div>
+<button class="draft-btn" onclick="clearDraft()">Clear</button>
+</div>
+
+<div class="hero">
+<div class="progress-card">
+<div class="step-meta">
+<div class="step-name" id="stepName">Size</div>
+<div class="step-count" id="stepCount">Step 1 of 8</div>
+</div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="stage-labels" id="stageLabels"></div>
+</div>
+</div>
+
+<div class="content">
+<div class="stage active" data-stage="size">
+<div class="panel">
+<div class="stage-title">Select Size</div>
+<div class="helper">Choose Free Size, Standard Size, or multiple clothing sizes. Free/Standard cannot mix with S/M/L.</div>
+<div class="chip-grid" id="sizeButtons"></div>
+</div>
+</div>
+
+<div class="stage" data-stage="category">
+<div class="panel">
+<div class="stage-title">Select Category</div>
+<div class="helper">Category controls product section. New Arrivals automatically gets the NEW badge.</div>
+<div class="chip-grid" id="categoryButtons"></div>
+<div class="input-group" id="newTypeBox" style="display:none;">
+<div class="input-label">Product type for New Arrivals</div>
+<div class="chip-grid" id="newTypeButtons"></div>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="info">
+<div class="panel">
+<div class="stage-title">Product Info</div>
+<div class="helper">Name is auto-generated from category. You can edit it if needed.</div>
+<div class="input-group">
+<div class="input-label">Product ID</div>
+<input class="field" id="productId" placeholder="Example: DS0040" oninput="syncField('productId',this.value)">
+</div>
+<div class="input-group">
+<div class="input-label">Product Name <button onclick="generateName(true)">Generate Again</button></div>
+<input class="field" id="productName" placeholder="Auto product name" oninput="syncField('productName',this.value)">
+</div>
+<div class="input-group">
+<div class="input-label">Show</div>
+<div class="chip-grid" id="showButtons"></div>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="price">
+<div class="panel">
+<div class="stage-title">Price & Offer</div>
+<div class="helper">Select common price and Today Offer. Today Offer subtracts from price.</div>
+<div class="input-group">
+<div class="input-label">Price</div>
+<div class="chip-grid" id="priceButtons"></div>
+<div class="custom-row" id="customPriceRow">
+<input class="field" id="customPrice" type="tel" inputmode="numeric" placeholder="Custom price" oninput="setCustomPrice(this.value)">
+</div>
+</div>
+<div class="input-group">
+<div class="input-label">Today Offer</div>
+<div class="chip-grid" id="offerButtons"></div>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="details">
+<div class="panel">
+<div class="stage-title">Details & Stock</div>
+<div class="helper">Descriptions are auto-generated from category, but editable.</div>
+<div class="input-group">
+<div class="input-label">Stock</div>
+<div class="chip-grid" id="stockButtons"></div>
+</div>
+<div class="input-group">
+<div class="input-label">Description1 <button onclick="resetDescriptions()">Reset Auto</button></div>
+<textarea class="textarea" id="description1" oninput="syncField('description1',this.value)"></textarea>
+</div>
+<div class="input-group">
+<div class="input-label">Description2</div>
+<textarea class="textarea" id="description2" oninput="syncField('description2',this.value)"></textarea>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="images">
+<div class="panel">
+<div class="stage-title">Image URLs</div>
+<div class="helper">Paste Google Drive or image URLs. Main image is required.</div>
+<div class="input-group"><div class="input-label">Image Url</div><input class="field" id="imageUrl" placeholder="Main image URL" oninput="syncField('imageUrl',this.value)"></div>
+<div class="input-group"><div class="input-label">Image Url2</div><input class="field" id="imageUrl2" placeholder="Optional" oninput="syncField('imageUrl2',this.value)"></div>
+<div class="input-group"><div class="input-label">Image Url3</div><input class="field" id="imageUrl3" placeholder="Optional" oninput="syncField('imageUrl3',this.value)"></div>
+<div class="input-group"><div class="input-label">Image Url4</div><input class="field" id="imageUrl4" placeholder="Optional" oninput="syncField('imageUrl4',this.value)"></div>
+<div class="input-group"><div class="input-label">Banner 1</div><input class="field" id="banner1" placeholder="Optional" oninput="syncField('banner1',this.value)"></div>
+<div class="input-group"><div class="input-label">Banner 2</div><input class="field" id="banner2" placeholder="Optional" oninput="syncField('banner2',this.value)"></div>
+<div class="input-group"><div class="input-label">Banner 3</div><input class="field" id="banner3" placeholder="Optional" oninput="syncField('banner3',this.value)"></div>
+</div>
+</div>
+
+<div class="stage" data-stage="sale">
+<div class="panel">
+<div class="stage-title">Advanced Sale</div>
+<div class="helper">Default is 0. Use carefully because Flat Discount or Big Day Sale can act like a global sale in your app.</div>
+<div class="warning-box">Select only one: Flat Discount or Big Day Sale. Choosing one disables the other.</div>
+<div class="input-group">
+<div class="input-label">Flat Discount</div>
+<div class="chip-grid" id="flatButtons"></div>
+<div class="custom-row" id="customFlatRow">
+<input class="field" id="customFlat" type="tel" inputmode="numeric" placeholder="Custom flat discount %" oninput="setCustomDiscount('flatDiscount',this.value)">
+</div>
+</div>
+<div class="input-group">
+<div class="input-label">Big Day Sale</div>
+<div class="chip-grid" id="bigButtons"></div>
+<div class="custom-row" id="customBigRow">
+<input class="field" id="customBig" type="tel" inputmode="numeric" placeholder="Custom big day sale %" oninput="setCustomDiscount('bigDaySale',this.value)">
+</div>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="review">
+<div class="panel">
+<div class="stage-title">Review & Upload</div>
+<div class="helper">Check product details before saving to Sheet.</div>
+<div id="reviewBox"></div>
+</div>
+<div class="panel">
+<div class="stage-title">Edit Uploaded Product</div>
+<div class="helper">Search live products, tap a card, edit details, then upload as update.</div>
+<div class="edit-search">
+<input class="field" id="editSearch" placeholder="Search name / ID / category">
+<button class="primary-btn" onclick="loadLiveProducts()" style="height:54px;border-radius:18px;padding:0 14px;"><i class="fa-solid fa-rotate"></i></button>
+</div>
+<div class="edit-list" id="editList"></div>
+</div>
+</div>
+</div>
+
+<div class="footer-actions">
+<button class="footer-back" id="backBtn" onclick="prevStage()">Back</button>
+<button class="footer-next" id="nextBtn" onclick="nextStage()">Next</button>
+<button class="footer-upload" id="uploadBtn" onclick="uploadProduct()" style="display:none;">Upload Product</button>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
+const PRODUCT_API = SCRIPT_API;
+const CACHE_KEY = "dishariProductsCacheV1";
+const SELLER_PIN = "7044";
+const DRAFT_KEY = "dishariUploadDraftV1";
+
+const stages = [
+{key:"size", label:"Size"},
+{key:"category", label:"Category"},
+{key:"info", label:"Info"},
+{key:"price", label:"Price"},
+{key:"details", label:"Details"},
+{key:"images", label:"Images"},
+{key:"sale", label:"Sale"},
+{key:"review", label:"Review"}
+];
+
+const categories = ["New Arrivals","Saree","Kurti","Tops","Palazzo","Salwar","Gown","Nighty","Western","Kids","Bedsheet","Trendz"];
+const newTypes = ["Saree","Kurti","Top","Salwar","Gown"];
+const priceValues = [249,349,499,699,799,959,999];
+const offerValues = [0,30,50,80,100,120,150,200];
+const discountValues = [0,5,7,10,12,15,17,20];
+
+const desc1Map = {
+"Saree":"Elegant saree for every special occasion",
+"Kurti":"Stylish kurti for daily fashion comfort",
+"Tops":"Trendy top for casual everyday style",
+"Palazzo":"Comfortable palazzo for modern daily wear",
+"Salwar":"Classic salwar set for elegant ethnic look",
+"Gown":"Beautiful gown for party and festive wear",
+"Nighty":"Soft nighty for comfortable sleepwear",
+"Western":"Modern western outfit for stylish everyday look",
+"Kids":"Cute kids fashion for every occasion",
+"Bedsheet":"Soft bedsheet for comfortable home living",
+"Trendz":"Latest trendy collection for modern style",
+"New Arrivals":"Fresh new style just arrived for you"
+};
+
+const desc2Map = {
+"Saree":"Beautiful saree with elegant design and comfortable fabric. Perfect for festive occasions, family functions, and special celebrations.",
+"Kurti":"Stylish kurti designed for daily comfort and effortless ethnic style. Easy to wear, comfortable for long hours, and perfect for casual outings.",
+"Tops":"Trendy top with a comfortable fit and modern look. Perfect for daily wear, casual outings, and styling with jeans or palazzo.",
+"Palazzo":"Comfortable palazzo with soft fabric and easy fit. Perfect for daily use, office wear, and pairing with kurtis or tops.",
+"Salwar":"Elegant salwar set with a classic ethnic look and comfortable feel. Perfect for daily wear, family occasions, and festive styling.",
+"Gown":"Beautiful gown with stylish design and graceful look. Perfect for parties, celebrations, and special evening occasions.",
+"Nighty":"Soft and comfortable nighty made for relaxed sleepwear. Lightweight, easy to wear, and perfect for everyday night comfort.",
+"Western":"Modern western outfit with a stylish look and comfortable fit. Perfect for casual outings, daily fashion, and confident everyday styling.",
+"Kids":"Cute and comfortable kids wear designed for everyday comfort and playful style. Perfect for outings, occasions, and daily use.",
+"Bedsheet":"Soft bedsheet with comfortable fabric and elegant design. Perfect for daily home use and adding a fresh look to your bedroom.",
+"Trendz":"Latest trendy fashion piece selected for modern style and daily comfort. Perfect for upgrading your look with a fresh new collection.",
+"New Arrivals":"Fresh new fashion style just arrived in Dishari collection. Designed for comfort, style, and everyday confidence."
+};
+
+const nameWords = {
+"Saree":[["Royal","Silk","Fashion","Saree"],["Elegant","Cotton","Party","Saree"],["Premium","Designer","Ethnic","Saree"]],
+"Kurti":[["Stylish","Cotton","Daily","Kurti"],["Premium","Ethnic","Fashion","Kurti"],["Modern","Comfort","Printed","Kurti"]],
+"Tops":[["Modern","Girls","Casual","Top"],["Trendy","Daily","Fashion","Top"],["Stylish","Comfort","Cotton","Top"]],
+"Palazzo":[["Soft","Comfort","Daily","Palazzo"],["Classic","Printed","Fashion","Palazzo"],["Modern","Relaxed","Cotton","Palazzo"]],
+"Salwar":[["Classic","Ethnic","Salwar","Set"],["Elegant","Cotton","Salwar","Set"],["Premium","Traditional","Salwar","Set"]],
+"Gown":[["Princess","Party","Fashion","Gown"],["Stylish","Evening","Party","Gown"],["Premium","Fashion","Designer","Gown"]],
+"Nighty":[["Soft","Cotton","Comfort","Nighty"],["Premium","Ladies","Sleep","Nighty"],["Comfort","Daily","Wear","Nighty"]],
+"Western":[["Modern","Western","Fashion","Outfit"],["Stylish","Daily","Western","Wear"],["Trendy","Comfort","Western","Outfit"]],
+"Kids":[["Cute","Kids","Fashion","Wear"],["Smart","Kids","Casual","Set"],["Trendy","Kids","Comfort","Wear"]],
+"Bedsheet":[["Premium","Soft","Bedroom","Bedsheet"],["Luxury","Printed","Cotton","Bedsheet"],["Comfort","Double","Soft","Bedsheet"]],
+"Trendz":[["Universal","Latest","Fashion","Collection"],["Modern","Trendy","Daily","Choice"],["Fresh","Premium","Style","Pick"]],
+"New Arrivals":[["New","Trendy","Collection"],["Fresh","Latest","Style"],["Modern","Royal","Choice"]]
+};
+
+let currentStage = 0;
+let editMode = false;
+let liveProducts = [];
+let toastTimer = null;
+
+let uploadData = {
+size:"Free Size",
+category:"",
+newType:"",
+productId:"",
+productName:"",
+show:"Yes",
+price:"",
+description1:"",
+imageUrl:"",
+stock:"In Stock",
+todayOffer:"0",
+imageUrl2:"",
+imageUrl3:"",
+imageUrl4:"",
+shipping:"Free Shipping",
+description2:"",
+flatDiscount:"0",
+bigDaySale:"0",
+banner1:"",
+banner2:"",
+banner3:""
+};
+
+function digitsOnly(input,maxLength){
+input.value = input.value.replace(/\D/g,"").slice(0,maxLength);
+}
+
+function showToast(message){
+let toast = document.getElementById("toast");
+toast.innerText = message;
+toast.classList.add("show");
+
+if(toastTimer){
+clearTimeout(toastTimer);
+}
+
+toastTimer = setTimeout(function(){
+toast.classList.remove("show");
+},2200);
+}
+
+function unlockUpload(){
+let pin = document.getElementById("pinInput").value.trim();
+
+if(pin !== SELLER_PIN){
+showToast("Wrong PIN");
+return;
+}
+
+sessionStorage.setItem("dishariUploadUnlocked","yes");
+showApp();
+}
+
+function showApp(){
+document.getElementById("pinScreen").style.display = "none";
+document.getElementById("app").style.display = "block";
+renderAllControls();
+loadDraft();
+renderStage();
+loadLiveProducts();
+}
+
+function normalizeImageUrl(url){
+if(!url){
+return "";
+}
+
+let cleanUrl = String(url).trim();
+let driveMatch =
+cleanUrl.match(/drive\.google\.com\/file\/d\/([^/]+)/) ||
+cleanUrl.match(/[?&]id=([^&]+)/);
+
+if(driveMatch && driveMatch[1]){
+return "https://lh3.googleusercontent.com/d/" + driveMatch[1];
+}
+
+return cleanUrl;
+}
+
+function renderAllControls(){
+renderStageLabels();
+renderSizeButtons();
+renderCategoryButtons();
+renderNewTypeButtons();
+renderChoiceButtons("showButtons",["Yes","No"],uploadData.show,function(value){ uploadData.show = value; });
+renderChoiceButtons("stockButtons",["In Stock","Out Of Stock"],uploadData.stock,function(value){ uploadData.stock = value; });
+renderPriceButtons();
+renderOfferButtons();
+renderDiscountButtons();
+}
+
+function renderStageLabels(){
+document.getElementById("stageLabels").innerHTML = stages.map(function(stage,index){
+let cls = index === currentStage ? "active" : (index < currentStage ? "done" : "");
+return `<div class="stage-pill ${cls}">${index < currentStage ? "✓ " : ""}${stage.label}</div>`;
+}).join("");
+}
+
+function renderSizeButtons(){
+let values = ["Free Size","Standard Size","S","M","L","XL","XXL","XXXL"];
+document.getElementById("sizeButtons").innerHTML = values.map(function(value){
+let active = getSizeArray().includes(value) ? " active" : "";
+return `<button class="chip${active}" onclick="selectSize('${value}')">${value}</button>`;
+}).join("");
+}
+
+function getSizeArray(){
+return String(uploadData.size || "").split(",").map(function(item){
+return item.trim();
+}).filter(Boolean);
+}
+
+function selectSize(size){
+let singleSizes = ["Free Size","Standard Size"];
+let selected = getSizeArray();
+
+if(singleSizes.includes(size)){
+uploadData.size = size;
+}
+else{
+selected = selected.filter(function(item){
+return !singleSizes.includes(item);
+});
+
+if(selected.includes(size)){
+selected = selected.filter(function(item){
+return item !== size;
+});
+}
+else{
+selected.push(size);
+}
+
+uploadData.size = selected.length ? selected.join(",") : "";
+}
+
+saveDraft();
+renderSizeButtons();
+}
+
+function renderCategoryButtons(){
+document.getElementById("categoryButtons").innerHTML = categories.map(function(category){
+let active = uploadData.category === category ? " active" : "";
+return `<button class="chip${active}" onclick="selectCategory('${category}')">${category}</button>`;
+}).join("");
+}
+
+function renderNewTypeButtons(){
+document.getElementById("newTypeButtons").innerHTML = newTypes.map(function(type){
+let active = uploadData.newType === type ? " active" : "";
+return `<button class="chip${active}" onclick="selectNewType('${type}')">${type}</button>`;
+}).join("");
+}
+
+function selectCategory(category){
+uploadData.category = category;
+
+if(category !== "New Arrivals"){
+uploadData.newType = "";
+}
+
+generateName(false);
+resetDescriptions();
+saveDraft();
+renderCategoryButtons();
+renderNewTypeButtons();
+document.getElementById("newTypeBox").style.display = category === "New Arrivals" ? "block" : "none";
+}
+
+function selectNewType(type){
+uploadData.newType = type;
+generateName(false);
+saveDraft();
+renderNewTypeButtons();
+}
+
+function generateName(force){
+let category = uploadData.category || "Trendz";
+let useCategory = category === "New Arrivals" && uploadData.newType ? uploadData.newType : category;
+let sets = nameWords[category] || nameWords[useCategory] || nameWords.Trendz;
+let index = Math.floor(Math.random() * sets.length);
+let words = sets[index].slice();
+
+if(category === "New Arrivals" && uploadData.newType){
+words.push(uploadData.newType);
+}
+
+let generated = words.join(" ");
+
+if(force || !uploadData.productName){
+uploadData.productName = generated;
+document.getElementById("productName").value = generated;
+saveDraft();
+}
+}
+
+function resetDescriptions(){
+let category = uploadData.category || "Trendz";
+uploadData.description1 = desc1Map[category] || desc1Map.Trendz;
+uploadData.description2 = desc2Map[category] || desc2Map.Trendz;
+
+let desc1 = document.getElementById("description1");
+let desc2 = document.getElementById("description2");
+
+if(desc1){
+desc1.value = uploadData.description1;
+}
+
+if(desc2){
+desc2.value = uploadData.description2;
+}
+
+saveDraft();
+}
+
+function renderChoiceButtons(id,values,current,onSelect){
+let box = document.getElementById(id);
+box.innerHTML = values.map(function(value){
+let danger = value.toLowerCase().includes("out") || value === "No" ? " danger" : "";
+let active = current === value ? " active" : "";
+return `<button class="chip${danger}${active}" onclick="selectChoice('${id}','${value}')">${value}</button>`;
+}).join("");
+}
+
+function selectChoice(id,value){
+if(id === "showButtons"){
+uploadData.show = value;
+renderChoiceButtons("showButtons",["Yes","No"],uploadData.show);
+}
+
+if(id === "stockButtons"){
+uploadData.stock = value;
+renderChoiceButtons("stockButtons",["In Stock","Out Of Stock"],uploadData.stock);
+}
+
+saveDraft();
+}
+
+function renderPriceButtons(){
+let html = priceValues.map(function(price){
+let active = Number(uploadData.price) === price ? " active" : "";
+return `<button class="chip${active}" onclick="selectPrice('${price}')">Rs ${price}</button>`;
+}).join("");
+html += `<button class="chip${uploadData.price && !priceValues.includes(Number(uploadData.price)) ? " active" : ""}" onclick="showCustomPrice()">Custom</button>`;
+document.getElementById("priceButtons").innerHTML = html;
+document.getElementById("customPriceRow").classList.toggle("active",uploadData.price && !priceValues.includes(Number(uploadData.price)));
+}
+
+function selectPrice(price){
+uploadData.price = String(price);
+document.getElementById("customPrice").value = "";
+saveDraft();
+renderPriceButtons();
+}
+
+function showCustomPrice(){
+document.getElementById("customPriceRow").classList.add("active");
+setTimeout(function(){
+document.getElementById("customPrice").focus();
+},80);
+}
+
+function setCustomPrice(value){
+uploadData.price = String(value || "").replace(/\D/g,"");
+saveDraft();
+renderPriceButtons();
+}
+
+function renderOfferButtons(){
+document.getElementById("offerButtons").innerHTML = offerValues.map(function(value){
+let label = value === 0 ? "No Offer" : "Rs " + value;
+let active = Number(uploadData.todayOffer) === value ? " active" : "";
+return `<button class="chip${active}" onclick="selectOffer('${value}')">${label}</button>`;
+}).join("");
+}
+
+function selectOffer(value){
+uploadData.todayOffer = String(value);
+saveDraft();
+renderOfferButtons();
+}
+
+function renderDiscountButtons(){
+renderOneDiscount("flatButtons","flatDiscount","customFlatRow");
+renderOneDiscount("bigButtons","bigDaySale","customBigRow");
+}
+
+function renderOneDiscount(boxId,key,rowId){
+let otherKey = key === "flatDiscount" ? "bigDaySale" : "flatDiscount";
+let disabled = Number(uploadData[otherKey]) > 0;
+let values = discountValues.map(function(value){
+let active = Number(uploadData[key]) === value ? " active" : "";
+let disabledText = disabled && value !== 0 ? " disabled" : "";
+return `<button class="chip${active}" ${disabledText} onclick="selectDiscount('${key}','${value}')">${value}%</button>`;
+}).join("");
+
+values += `<button class="chip${uploadData[key] && !discountValues.includes(Number(uploadData[key])) ? " active" : ""}" ${disabled ? "disabled" : ""} onclick="showCustomDiscount('${rowId}')">Custom</button>`;
+document.getElementById(boxId).innerHTML = values;
+document.getElementById(rowId).classList.toggle("active",uploadData[key] && !discountValues.includes(Number(uploadData[key])));
+}
+
+function selectDiscount(key,value){
+let otherKey = key === "flatDiscount" ? "bigDaySale" : "flatDiscount";
+
+if(Number(value) > 0){
+uploadData[otherKey] = "0";
+}
+
+uploadData[key] = String(value);
+saveDraft();
+renderDiscountButtons();
+}
+
+function showCustomDiscount(rowId){
+document.getElementById(rowId).classList.add("active");
+let input = rowId === "customFlatRow" ? "customFlat" : "customBig";
+setTimeout(function(){
+document.getElementById(input).focus();
+},80);
+}
+
+function setCustomDiscount(key,value){
+let otherKey = key === "flatDiscount" ? "bigDaySale" : "flatDiscount";
+let clean = String(value || "").replace(/\D/g,"").slice(0,2);
+
+if(Number(clean) > 0){
+uploadData[otherKey] = "0";
+}
+
+uploadData[key] = clean || "0";
+saveDraft();
+renderDiscountButtons();
+}
+
+function syncField(key,value){
+uploadData[key] = value;
+saveDraft();
+}
+
+function fillForm(){
+Object.keys(uploadData).forEach(function(key){
+let field = document.getElementById(key);
+if(field){
+field.value = uploadData[key] || "";
+}
+});
+renderAllControls();
+document.getElementById("newTypeBox").style.display = uploadData.category === "New Arrivals" ? "block" : "none";
+}
+
+function saveDraft(){
+localStorage.setItem(DRAFT_KEY,JSON.stringify({
+editMode:editMode,
+uploadData:uploadData
+}));
+}
+
+function loadDraft(){
+let draft = localStorage.getItem(DRAFT_KEY);
+
+if(!draft){
+fillForm();
+return;
+}
+
+try{
+let parsed = JSON.parse(draft);
+if(parsed && parsed.uploadData){
+uploadData = Object.assign(uploadData,parsed.uploadData);
+editMode = !!parsed.editMode;
+document.getElementById("modeText").innerText = editMode ? "Editing product" : "New product";
+}
+}
+catch(error){
+localStorage.removeItem(DRAFT_KEY);
+}
+
+fillForm();
+}
+
+function clearDraft(){
+localStorage.removeItem(DRAFT_KEY);
+editMode = false;
+uploadData = {
+size:"Free Size",category:"",newType:"",productId:"",productName:"",show:"Yes",price:"",
+description1:"",imageUrl:"",stock:"In Stock",todayOffer:"0",imageUrl2:"",imageUrl3:"",imageUrl4:"",
+shipping:"Free Shipping",description2:"",flatDiscount:"0",bigDaySale:"0",banner1:"",banner2:"",banner3:""
+};
+currentStage = 0;
+document.getElementById("modeText").innerText = "New product";
+fillForm();
+renderStage();
+showToast("Draft cleared");
+}
+
+function validateStage(){
+let key = stages[currentStage].key;
+
+if(key === "size" && !uploadData.size){
+showToast("Select size");
+return false;
+}
+
+if(key === "category" && !uploadData.category){
+showToast("Select category");
+return false;
+}
+
+if(key === "category" && uploadData.category === "New Arrivals" && !uploadData.newType){
+showToast("Select product type");
+return false;
+}
+
+if(key === "info"){
+if(!uploadData.productId.trim()){
+showToast("Enter product ID");
+return false;
+}
+if(!uploadData.productName.trim()){
+showToast("Enter product name");
+return false;
+}
+}
+
+if(key === "price" && !uploadData.price){
+showToast("Select price");
+return false;
+}
+
+if(key === "images" && !uploadData.imageUrl.trim()){
+showToast("Paste main image URL");
+return false;
+}
+
+return true;
+}
+
+function nextStage(){
+if(!validateStage()){
+return;
+}
+
+if(currentStage < stages.length - 1){
+currentStage++;
+renderStage();
+}
+}
+
+function prevStage(){
+if(currentStage > 0){
+currentStage--;
+renderStage();
+}
+}
+
+function renderStage(){
+document.querySelectorAll(".stage").forEach(function(stage,index){
+stage.classList.toggle("active",index === currentStage);
+});
+
+document.getElementById("stepName").innerText = stages[currentStage].label;
+document.getElementById("stepCount").innerText = "Step " + (currentStage + 1) + " of " + stages.length;
+document.getElementById("progressFill").style.width = (((currentStage + 1) / stages.length) * 100) + "%";
+document.getElementById("backBtn").style.visibility = currentStage === 0 ? "hidden" : "visible";
+document.getElementById("nextBtn").style.display = currentStage === stages.length - 1 ? "none" : "block";
+document.getElementById("uploadBtn").style.display = currentStage === stages.length - 1 ? "block" : "none";
+document.getElementById("uploadBtn").innerText = editMode ? "Update Product" : "Upload Product";
+renderStageLabels();
+
+if(stages[currentStage].key === "review"){
+renderReview();
+}
+
+window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function renderReview(){
+let img = normalizeImageUrl(uploadData.imageUrl);
+document.getElementById("reviewBox").innerHTML = `
+<div class="review-card">
+<img class="review-img" src="${img}" onerror="this.style.display='none'">
+<div>
+<div class="review-title">${uploadData.productName || "-"}</div>
+<div class="review-meta">${uploadData.productId || "-"} · ${uploadData.category || "-"} · ${uploadData.size || "-"}</div>
+<div class="review-price">Rs ${uploadData.price || "0"}</div>
+</div>
+</div>
+<div class="summary-grid">
+<div class="summary-row"><b>Show</b><span>${uploadData.show}</span></div>
+<div class="summary-row"><b>Stock</b><span>${uploadData.stock}</span></div>
+<div class="summary-row"><b>Today Offer</b><span>${uploadData.todayOffer || "0"}</span></div>
+<div class="summary-row"><b>Description1</b><span>${uploadData.description1 || "-"}</span></div>
+<div class="summary-row"><b>Flat Discount</b><span>${uploadData.flatDiscount || "0"}%</span></div>
+<div class="summary-row"><b>Big Day Sale</b><span>${uploadData.bigDaySale || "0"}%</span></div>
+</div>
+`;
+renderEditList();
+}
+
+function payload(){
+return Object.assign({},uploadData,{
+type:editMode ? "updateProduct" : "product",
+shipping:"Free Shipping"
+});
+}
+
+function uploadProduct(){
+if(!validateAll()){
+return;
+}
+
+let btn = document.getElementById("uploadBtn");
+btn.disabled = true;
+btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+fetch(SCRIPT_API,{
+method:"POST",
+mode:"no-cors",
+headers:{"Content-Type":"text/plain;charset=utf-8"},
+body:JSON.stringify(payload())
+})
+.then(function(){
+localStorage.removeItem(CACHE_KEY);
+localStorage.removeItem(DRAFT_KEY);
+showToast(editMode ? "Product updated" : "Product uploaded");
+setTimeout(function(){
+window.location.href = "products.html";
+},1100);
+})
+.catch(function(){
+btn.disabled = false;
+btn.innerText = editMode ? "Update Product" : "Upload Product";
+showToast("Upload failed. Try again.");
+});
+}
+
+function validateAll(){
+let required = [
+["size","Select size"],
+["category","Select category"],
+["productId","Enter product ID"],
+["productName","Enter product name"],
+["price","Select price"],
+["description1","Enter Description1"],
+["description2","Enter Description2"],
+["imageUrl","Paste main image URL"]
+];
+
+for(let i = 0; i < required.length; i++){
+let key = required[i][0];
+if(!String(uploadData[key] || "").trim()){
+showToast(required[i][1]);
+return false;
+}
+}
+
+if(uploadData.category === "New Arrivals" && !uploadData.newType){
+showToast("Select product type");
+return false;
+}
+
+return true;
+}
+
+function getField(product,names){
+for(let i = 0; i < names.length; i++){
+if(product[names[i]] !== undefined && product[names[i]] !== null){
+return product[names[i]];
+}
+}
+return "";
+}
+
+function productToUploadData(product){
+return {
+size:String(getField(product,["Size","size"]) || "Free Size"),
+productName:String(getField(product,["Product Name","productName"]) || ""),
+category:String(getField(product,["Category","category"]) || ""),
+show:String(getField(product,["Show","show"]) || "Yes"),
+price:String(getField(product,["Price","price"]) || ""),
+description1:String(getField(product,["Description1","description1"]) || ""),
+imageUrl:String(getField(product,["Image Url","imageUrl"]) || ""),
+stock:String(getField(product,["Stock","stock"]) || "In Stock"),
+todayOffer:String(getField(product,["Today Offer","todayOffer"]) || "0"),
+imageUrl2:String(getField(product,["Image Url2","imageUrl2"]) || ""),
+imageUrl3:String(getField(product,["Image Url3","imageUrl3"]) || ""),
+imageUrl4:String(getField(product,["Image Url4","imageUrl4"]) || ""),
+shipping:String(getField(product,["Shipping","shipping"]) || "Free Shipping"),
+description2:String(getField(product,["Description2","description2"]) || ""),
+productId:String(getField(product,["Product ID","productId"]) || ""),
+flatDiscount:String(getField(product,["Flat Discount","flatDiscount"]) || "0"),
+bigDaySale:String(getField(product,["Big Day Sale","bigDaySale"]) || "0"),
+banner1:String(getField(product,["Banner 1","banner1"]) || ""),
+banner2:String(getField(product,["Banner 2","banner2"]) || ""),
+banner3:String(getField(product,["Banner 3","banner3"]) || ""),
+newType:""
+};
+}
+
+function loadLiveProducts(){
+let editList = document.getElementById("editList");
+editList.innerHTML = "<div class='helper'>Loading products...</div>";
+
+fetch(PRODUCT_API)
+.then(function(res){ return res.json(); })
+.then(function(data){
+liveProducts = Array.isArray(data) ? data : [];
+renderEditList();
+})
+.catch(function(){
+editList.innerHTML = "<div class='helper'>Could not load live products.</div>";
+});
+}
+
+function renderEditList(){
+let list = document.getElementById("editList");
+
+if(!list){
+return;
+}
+
+let search = (document.getElementById("editSearch").value || "").toLowerCase().trim();
+let filtered = liveProducts.filter(function(product){
+let text = [
+getField(product,["Product ID"]),
+getField(product,["Product Name"]),
+getField(product,["Category"])
+].join(" ").toLowerCase();
+return !search || text.includes(search);
+}).slice(0,30);
+
+if(!filtered.length){
+list.innerHTML = "<div class='helper'>No products found.</div>";
+return;
+}
+
+list.innerHTML = filtered.map(function(product,index){
+let img = normalizeImageUrl(getField(product,["Image Url"]));
+let name = getField(product,["Product Name"]) || "Dishari Product";
+let id = getField(product,["Product ID"]) || "";
+let cat = getField(product,["Category"]) || "";
+let price = getField(product,["Price"]) || "";
+return `
+<div class="edit-card" onclick="editProduct(${liveProducts.indexOf(product)})">
+<img src="${img}" onerror="this.style.display='none'">
+<div>
+<div class="edit-card-title">${name}</div>
+<div class="edit-card-meta">${id} · ${cat} · Rs ${price}</div>
+</div>
+</div>
+`;
+}).join("");
+}
+
+function editProduct(index){
+let product = liveProducts[index];
+
+if(!product){
+return;
+}
+
+uploadData = Object.assign(uploadData,productToUploadData(product));
+editMode = true;
+document.getElementById("modeText").innerText = "Editing product";
+fillForm();
+currentStage = 0;
+saveDraft();
+renderStage();
+showToast("Product loaded for edit");
+}
+
+document.addEventListener("input",function(event){
+if(event.target && event.target.id === "editSearch"){
+renderEditList();
+}
+});
+
+if(sessionStorage.getItem("dishariUploadUnlocked") === "yes"){
+showApp();
+}
+else{
+document.getElementById("pinScreen").style.display = "flex";
+}
+</script>
+</body>
+</html>
