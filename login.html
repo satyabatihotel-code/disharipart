@@ -762,7 +762,7 @@ New user? <span onclick="openSignupFromMain()">Sign up</span>
 <div class="install-status-spinner"></div>
 <div class="install-status-check"><i class="fa-solid fa-check"></i></div>
 <div class="install-status-title" id="installStatusTitle">Installing Dishari...</div>
-<div class="install-status-message" id="installStatusMessage">Please wait while Dishari is added to your home screen.</div>
+<div class="install-status-message" id="installStatusMessage">Please wait while Dishari is being added to your home screen.</div>
 </div>
 </div>
 
@@ -774,6 +774,7 @@ let toastTimer = null;
 let deferredInstallPrompt = null;
 let installCompleted = false;
 let installReminderTimer = null;
+let installCompleteTimer = null;
 
 function isStandaloneApp(){
 return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
@@ -867,7 +868,7 @@ message.innerText = "Dishari App is now on your home screen.";
 }
 else{
 title.innerText = "Installing Dishari...";
-message.innerText = "Please wait while Dishari is added to your home screen.";
+message.innerText = "Please wait while Dishari is being added to your home screen.";
 }
 
 overlay.classList.add("show");
@@ -931,8 +932,16 @@ clearTimeout(installReminderTimer);
 }
 setInstallLoading(false);
 hideInstallBanner(1440);
+showInstallStatus("installing");
+
+if(installCompleteTimer){
+clearTimeout(installCompleteTimer);
+}
+
+installCompleteTimer = setTimeout(function(){
 showInstallStatus("complete");
 setTimeout(hideInstallStatus,3500);
+},10000);
 });
 
 window.addEventListener("load",function(){
