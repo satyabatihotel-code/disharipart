@@ -26,16 +26,35 @@ background:#f0f2f5;
 color:#071d33;
 padding-bottom:24px;
 overflow-x:hidden;
+user-select:none;
+-webkit-user-select:none;
+-webkit-touch-callout:none;
 }
 
 button,
 .chip,
-.icon-btn{
+.icon-btn,
+.panel,
+.stage-title,
+.helper,
+.review-card,
+.summary-row,
+.edit-card,
+.start-card,
+.stage-pill,
+.header{
 user-select:none;
 -webkit-user-select:none;
 -webkit-touch-callout:none;
 -webkit-tap-highlight-color:transparent;
 touch-action:manipulation;
+}
+
+input,
+textarea{
+user-select:text;
+-webkit-user-select:text;
+-webkit-touch-callout:default;
 }
 
 .header{
@@ -535,6 +554,18 @@ border-radius:14px;
 background:white;
 }
 
+.no-image-thumb{
+width:64px;
+height:64px;
+border-radius:14px;
+background:#eef5ff;
+color:#1877F2;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+}
+
 .edit-card-title{
 font-size:14px;
 font-weight:900;
@@ -763,6 +794,59 @@ border-radius:16px;
 font-size:15px;
 font-weight:900;
 cursor:pointer;
+}
+
+.success-overlay{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+padding:18px;
+background:rgba(7,29,51,0.38);
+backdrop-filter:blur(6px);
+z-index:9800;
+}
+
+.success-overlay.show{
+display:flex;
+}
+
+.success-card{
+width:100%;
+max-width:380px;
+background:white;
+border-radius:28px;
+padding:28px 22px;
+text-align:center;
+box-shadow:0 22px 52px rgba(7,29,51,0.24);
+border:1px solid #d6e7ff;
+}
+
+.success-icon{
+width:78px;
+height:78px;
+border-radius:50%;
+background:linear-gradient(135deg,#22c55e,#16a34a);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:34px;
+margin:0 auto 18px;
+box-shadow:0 12px 26px rgba(22,163,74,0.28);
+}
+
+.success-title{
+font-size:24px;
+line-height:31px;
+font-weight:900;
+color:#071d33;
+}
+
+.toast.warning{
+background:linear-gradient(135deg,#fff7ed,#ffffff);
+color:#9a3412;
 }
 
 .stage{
@@ -997,7 +1081,7 @@ transform:translateY(0);
 </div>
 <div class="input-group">
 <div class="input-label">Product Name <button onclick="generateName(true)">Generate Again</button></div>
-<input class="field" id="productName" placeholder="Auto product name" oninput="syncField('productName',this.value)">
+<input class="field" id="productName" placeholder="Auto product name" oninput="syncProductName(this)">
 </div>
 <div class="input-group">
 <div class="input-label">Show</div>
@@ -1101,7 +1185,7 @@ transform:translateY(0);
 <div class="stage-title">Edit Uploaded Product</div>
 <div class="helper">Search live products and tap Edit. Upload button stays hidden here to avoid mistakes.</div>
 <div class="edit-search">
-<input class="field" id="editSearch" placeholder="Search name or ID">
+<input class="field" id="editSearch" placeholder="Search name ID or price">
 <button class="primary-btn" onclick="loadLiveProducts()" style="height:54px;border-radius:18px;padding:0 14px;"><i class="fa-solid fa-rotate"></i></button>
 </div>
 <div class="edit-filters" id="editFilters"></div>
@@ -1120,6 +1204,13 @@ transform:translateY(0);
 
 <div class="toast" id="toast"></div>
 
+<div class="success-overlay" id="successOverlay">
+<div class="success-card">
+<div class="success-icon"><i class="fa-solid fa-check"></i></div>
+<div class="success-title" id="successTitle">Product Saved</div>
+</div>
+</div>
+
 <div class="modal-overlay" id="confirmModal">
 <div class="modal-card">
 <div class="modal-title" id="confirmTitle">Confirm</div>
@@ -1137,6 +1228,8 @@ const PRODUCT_API = SCRIPT_API;
 const CACHE_KEY = "dishariProductsCacheV1";
 const SELLER_PIN = "7044";
 const DRAFT_KEY = "dishariUploadDraftV1";
+const AUTO_EXIT_MS = 60000;
+const WARNING_MS = 55000;
 
 const stages = [
 {key:"start", label:"Start"},
@@ -1151,7 +1244,7 @@ const stages = [
 ];
 
 const categories = ["New Arrivals","Saree","Kurti","Tops","Palazzo","Salwar","Gown","Nighty","Western","Kids","Bedsheet","Trendz"];
-const categoryFilters = ["All","Saree","Kurti","Tops","Palazzo","Salwar","Gown","Nighty","Western","Kids","Bedsheet","Trendz"];
+const categoryFilters = ["All","New Arrival","No Image","Saree","Kurti","Tops","Palazzo","Salwar","Gown","Nighty","Western","Kids","Bedsheet","Trendz"];
 const newTypes = ["Saree","Kurti","Tops","Palazzo","Salwar","Gown","Nighty","Western","Kids","Bedsheet","Trendz"];
 const priceValues = [129,149,179,199,249,299,349,399,449,499,549,599,649,699,749,799,849,899,949,999,1199,1249,1299,1349,1399,1449,1499];
 const offerValues = [0,20,30,40,50,80,100,120,150,200,220,250];
@@ -1200,7 +1293,7 @@ const nameWords = {
 "Kids":[["Cute","Kids","Fashion","Wear"],["Smart","Kids","Casual","Set"],["Trendy","Kids","Comfort","Wear"]],
 "Bedsheet":[["Premium","Soft","Bedroom","Bedsheet"],["Luxury","Printed","Cotton","Bedsheet"],["Comfort","Double","Soft","Bedsheet"]],
 "Trendz":[["Universal","Latest","Fashion","Collection"],["Modern","Trendy","Daily","Choice"],["Fresh","Premium","Style","Pick"]],
-"New Arrivals":[["New","Trendy","Collection"],["Fresh","Latest","Style"],["Modern","Royal","Choice"]]
+"New Arrivals":[["New","Trendy","Fashion","Collection"],["Fresh","Latest","Style","Choice"],["Modern","Royal","Fashion","Choice"]]
 };
 
 let currentStage = 0;
@@ -1212,6 +1305,8 @@ let pendingSale = null;
 let imageCheckState = {};
 let returnToReviewMode = false;
 let reviewMode = "product";
+let warningTimer = null;
+let exitTimer = null;
 
 let uploadData = {
 size:"Free Size",
@@ -1270,7 +1365,7 @@ input.value = input.value.replace(/\D/g,"").slice(0,maxLength);
 function showToast(message){
 let toast = document.getElementById("toast");
 toast.innerText = message;
-toast.classList.add("show");
+toast.className = "toast show";
 
 if(toastTimer){
 clearTimeout(toastTimer);
@@ -1279,6 +1374,29 @@ clearTimeout(toastTimer);
 toastTimer = setTimeout(function(){
 toast.classList.remove("show");
 },2200);
+}
+
+function showWarningToast(message){
+let toast = document.getElementById("toast");
+toast.innerText = message;
+toast.className = "toast show warning";
+
+if(toastTimer){
+clearTimeout(toastTimer);
+}
+
+toastTimer = setTimeout(function(){
+toast.className = "toast";
+},2200);
+}
+
+function showSuccessBox(message){
+document.getElementById("successTitle").innerText = message;
+document.getElementById("successOverlay").classList.add("show");
+}
+
+function hideSuccessBox(){
+document.getElementById("successOverlay").classList.remove("show");
 }
 
 function openConfirm(title,message,onConfirm,onBack,backText,confirmText){
@@ -1337,6 +1455,56 @@ if(!uploadData.productId){
 regenerateProductId();
 }
 loadLiveProducts();
+startAutoExit();
+}
+
+function startAutoExit(){
+resetAutoExit();
+
+["click","touchstart","scroll","keydown","input"].forEach(function(eventName){
+window.addEventListener(eventName, resetAutoExit, {passive:true});
+});
+}
+
+function resetAutoExit(){
+if(warningTimer){
+clearTimeout(warningTimer);
+}
+
+if(exitTimer){
+clearTimeout(exitTimer);
+}
+
+warningTimer = setTimeout(function(){
+showWarningToast("Auto exit in 5 seconds");
+},WARNING_MS);
+
+exitTimer = setTimeout(function(){
+sessionStorage.removeItem("dishariUploadUnlocked");
+showToast("Session expired");
+setTimeout(function(){
+window.location.replace("products.html");
+},500);
+},AUTO_EXIT_MS);
+}
+
+function returnToUploadStart(){
+hideSuccessBox();
+localStorage.removeItem(DRAFT_KEY);
+let uploadButton = document.getElementById("uploadBtn");
+uploadButton.disabled = false;
+uploadButton.innerText = "Upload Product";
+editMode = false;
+reviewMode = "product";
+returnToReviewMode = false;
+uploadData = freshUploadData();
+fillForm();
+currentStage = 0;
+document.getElementById("modeText").innerText = "New product";
+renderStage();
+regenerateProductId();
+loadLiveProducts();
+resetAutoExit();
 }
 
 function startNewUpload(){
@@ -1558,11 +1726,35 @@ let words = sets[index].slice();
 let generated = words.join(" ");
 
 if(force || !uploadData.productName){
-uploadData.productName = generated;
+uploadData.productName = cleanText(generated);
 document.getElementById("productName").value = generated;
 saveDraft();
 renderOfferButtons();
 }
+}
+
+function syncProductName(input){
+let clean = cleanText(input.value);
+input.value = clean;
+uploadData.productName = clean;
+saveDraft();
+}
+
+function validateProductName(){
+let name = cleanText(uploadData.productName);
+let words = wordCount(name);
+
+if(words < 4 || words > 6){
+showToast("Product name needs 4 to 6 words");
+return false;
+}
+
+uploadData.productName = name;
+let field = document.getElementById("productName");
+if(field){
+field.value = name;
+}
+return true;
 }
 
 function getDescriptionCategory(){
@@ -2045,6 +2237,10 @@ if(!uploadData.productName.trim()){
 showToast("Enter product name");
 return false;
 }
+
+if(!validateProductName()){
+return false;
+}
 }
 
 if(key === "price" && !uploadData.price){
@@ -2241,10 +2437,11 @@ body:JSON.stringify(payload())
 .then(function(){
 localStorage.removeItem(CACHE_KEY);
 localStorage.removeItem(DRAFT_KEY);
-showToast(editMode ? "Product updated" : "Product uploaded");
+let successMessage = editMode ? "Product Reupdated Successfully" : "New Product Uploaded Successfully";
+showSuccessBox(successMessage);
 setTimeout(function(){
-window.location.href = "products.html";
-},1100);
+returnToUploadStart();
+},1800);
 })
 .catch(function(){
 btn.disabled = false;
@@ -2284,6 +2481,10 @@ if(!String(uploadData[key] || "").trim()){
 showToast(required[i][1]);
 return false;
 }
+}
+
+if(!validateProductName()){
+return false;
 }
 
 if(uploadData.category === "New Arrivals" && !uploadData.newType){
@@ -2398,7 +2599,13 @@ return;
 let search = (document.getElementById("editSearch").value || "").toLowerCase().trim();
 let filtered = liveProducts.filter(function(product){
 let category = String(getField(product,["Category"]) || "");
-let categoryMatch = editFilter === "All" || category === editFilter;
+let imageUrl = String(getField(product,["Image Url"]) || "").trim();
+let showValue = String(getField(product,["Show"]) || "Yes").trim().toLowerCase();
+let categoryMatch =
+editFilter === "All" ||
+(editFilter === "New Arrival" && category === "New Arrivals") ||
+(editFilter === "No Image" && !imageUrl && showValue === "no") ||
+category === editFilter;
 let text = [
 getField(product,["Product ID"]),
 getField(product,["Product Name"]),
@@ -2420,13 +2627,18 @@ let id = getField(product,["Product ID"]) || "";
 let cat = getField(product,["Category"]) || "";
 let price = getField(product,["Price"]) || "";
 let show = String(getField(product,["Show"]) || "Yes").trim().toLowerCase() !== "no";
+let hasImage = !!String(getField(product,["Image Url"]) || "").trim();
+let imageHTML = hasImage
+? `<img src="${img}" onerror="this.style.display='none'">`
+: `<div class="no-image-thumb"><i class="fa-solid fa-image"></i></div>`;
 return `
 <div class="edit-card">
-<img src="${img}" onerror="this.style.display='none'">
+${imageHTML}
 <div>
 <div class="edit-card-title">${name}</div>
 <div class="edit-card-meta">${id} - ${cat} - Rs ${price}</div>
 <div class="status-badge ${show ? "visible" : "hidden"}">${show ? "Visible" : "Hidden"}</div>
+${!hasImage ? '<div class="status-badge hidden">No Image</div>' : ''}
 </div>
 <button class="mini-btn primary" onclick="editProduct(${liveProducts.indexOf(product)})">Edit</button>
 </div>
