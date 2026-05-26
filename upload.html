@@ -773,6 +773,61 @@ display:none;
 display:block;
 }
 
+.start-grid{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:14px;
+}
+
+.start-card{
+border:1px solid #d6e7ff;
+background:linear-gradient(180deg,#ffffff,#f5f9ff);
+border-radius:24px;
+padding:18px;
+min-height:170px;
+text-align:left;
+box-shadow:0 10px 24px rgba(7,29,51,0.08);
+cursor:pointer;
+}
+
+.start-icon{
+width:54px;
+height:54px;
+border-radius:18px;
+background:#eef5ff;
+color:#1877F2;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+margin-bottom:14px;
+}
+
+.start-card.primary .start-icon{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+}
+
+.start-title{
+font-size:20px;
+font-weight:900;
+line-height:25px;
+}
+
+.start-text{
+margin-top:8px;
+font-size:13px;
+font-weight:800;
+line-height:20px;
+color:#607086;
+}
+
+@media(max-width:560px){
+.start-grid{
+grid-template-columns:1fr;
+}
+}
+
 .footer-actions{
 position:fixed;
 left:0;
@@ -893,7 +948,26 @@ transform:translateY(0);
 </div>
 
 <div class="content">
-<div class="stage active" data-stage="size">
+<div class="stage active" data-stage="start">
+<div class="panel">
+<div class="stage-title">Choose Work</div>
+<div class="helper">Start a new product upload or edit an old product. Choose one path first.</div>
+<div class="start-grid">
+<button class="start-card primary" onclick="startNewUpload()">
+<div class="start-icon"><i class="fa-solid fa-plus"></i></div>
+<div class="start-title">New Product Upload</div>
+<div class="start-text">Add a new product to Dishari with size price image and review.</div>
+</button>
+<button class="start-card" onclick="startOldProductEdit()">
+<div class="start-icon"><i class="fa-solid fa-pen-to-square"></i></div>
+<div class="start-title">Edit Old Product</div>
+<div class="start-text">Find an uploaded product and update only what is needed.</div>
+</button>
+</div>
+</div>
+</div>
+
+<div class="stage" data-stage="size">
 <div class="panel">
 <div class="stage-title">Select Size</div>
 <div class="helper">Choose Free Size, Standard Size, or multiple clothing sizes. Free/Standard cannot mix with S/M/L.</div>
@@ -1018,11 +1092,6 @@ transform:translateY(0);
 </div>
 
 <div class="stage" data-stage="review">
-<div class="review-tabs">
-<button class="review-tab active" id="reviewProductTab" onclick="setReviewMode('product')">Review Product</button>
-<button class="review-tab" id="editProductTab" onclick="setReviewMode('edit')">Edit Product</button>
-</div>
-
 <div class="panel review-panel active" id="reviewProductPanel">
 <div class="stage-title">Review & Upload</div>
 <div class="helper">Check product details before saving to Sheet.</div>
@@ -1070,6 +1139,7 @@ const SELLER_PIN = "7044";
 const DRAFT_KEY = "dishariUploadDraftV1";
 
 const stages = [
+{key:"start", label:"Start"},
 {key:"size", label:"Size"},
 {key:"category", label:"Category"},
 {key:"info", label:"Info"},
@@ -1260,11 +1330,43 @@ document.getElementById("pinScreen").style.display = "none";
 document.getElementById("app").style.display = "block";
 renderAllControls();
 loadDraft();
+currentStage = 0;
+reviewMode = "product";
 renderStage();
 if(!uploadData.productId){
 regenerateProductId();
 }
 loadLiveProducts();
+}
+
+function startNewUpload(){
+if(editMode){
+uploadData = freshUploadData();
+fillForm();
+}
+
+editMode = false;
+reviewMode = "product";
+returnToReviewMode = false;
+document.getElementById("modeText").innerText = "New product";
+
+if(!uploadData.productId){
+regenerateProductId();
+}
+
+currentStage = 1;
+renderStage();
+showToast("New upload started");
+}
+
+function startOldProductEdit(){
+reviewMode = "edit";
+returnToReviewMode = false;
+currentStage = stages.length - 1;
+document.getElementById("modeText").innerText = "Choose product to edit";
+renderStage();
+loadLiveProducts();
+showToast("Edit old product");
 }
 
 function normalizeImageUrl(url){
@@ -1348,7 +1450,9 @@ renderDiscountButtons();
 
 function renderStageLabels(){
 let labelBox = document.getElementById("stageLabels");
-labelBox.innerHTML = stages.map(function(stage,index){
+let visibleStages = currentStage === 0 ? stages : stages.filter(function(stage){ return stage.key !== "start"; });
+labelBox.innerHTML = visibleStages.map(function(stage){
+let index = stages.findIndex(function(item){ return item.key === stage.key; });
 let cls = index === currentStage ? "active" : (index < currentStage ? "done" : "");
 return `<div class="stage-pill ${cls}">${index < currentStage ? "✓ " : ""}${stage.label}</div>`;
 }).join("");
@@ -1993,6 +2097,10 @@ showToast("Images skipped");
 function prevStage(){
 if(currentStage > 0){
 currentStage--;
+if(currentStage === 0){
+reviewMode = "product";
+document.getElementById("modeText").innerText = editMode ? "Editing product" : "New product";
+}
 renderStage();
 }
 }
@@ -2003,14 +2111,20 @@ stage.classList.toggle("active",index === currentStage);
 });
 
 document.getElementById("stepName").innerText = stages[currentStage].label;
-document.getElementById("stepCount").innerText = "Step " + (currentStage + 1) + " of " + stages.length;
+document.getElementById("stepCount").innerText = currentStage === 0 ? "Choose" : "Step " + currentStage + " of " + (stages.length - 1);
 document.getElementById("progressFill").style.width = (((currentStage + 1) / stages.length) * 100) + "%";
 
 let isReviewStage = currentStage === stages.length - 1;
+if(isReviewStage && reviewMode === "edit"){
+document.getElementById("stepName").innerText = "Edit Product";
+document.getElementById("stepCount").innerText = "Find product";
+}
+
 let hideFooter = isReviewStage && reviewMode === "edit";
-document.getElementById("footerActions").style.display = hideFooter ? "none" : "flex";
-document.getElementById("backBtn").style.display = returnToReviewMode || currentStage === 0 ? "none" : "block";
-document.getElementById("nextBtn").style.display = isReviewStage ? "none" : "block";
+let hideStartFooter = currentStage === 0;
+document.getElementById("footerActions").style.display = hideFooter || hideStartFooter ? "none" : "flex";
+document.getElementById("backBtn").style.display = returnToReviewMode || currentStage <= 1 ? "none" : "block";
+document.getElementById("nextBtn").style.display = isReviewStage || currentStage === 0 ? "none" : "block";
 document.getElementById("nextBtn").innerText = returnToReviewMode ? "Back to Review" : "Next";
 document.getElementById("uploadBtn").style.display = isReviewStage && reviewMode === "product" ? "block" : "none";
 document.getElementById("skipBtn").style.display = !returnToReviewMode && stages[currentStage].key === "images" ? "block" : "none";
@@ -2027,9 +2141,14 @@ window.scrollTo({top:0,behavior:"smooth"});
 }
 
 function renderReview(){
+if(reviewMode === "edit"){
+renderEditList();
+return;
+}
+
 let img = normalizeImageUrl(uploadData.imageUrl);
 let showVisible = uploadData.show === "Yes";
-let productTypeRow = uploadData.category === "New Arrivals" ? summaryRow("Product Type",uploadData.newType || "-",1) : "";
+let productTypeRow = uploadData.category === "New Arrivals" ? summaryRow("Product Type",uploadData.newType || "-",2) : "";
 document.getElementById("reviewBox").innerHTML = `
 <div class="review-card">
 <img class="review-img" src="${img}" onerror="this.style.display='none'">
@@ -2041,22 +2160,21 @@ document.getElementById("reviewBox").innerHTML = `
 </div>
 </div>
 <div class="summary-grid">
-${summaryRow("Main Image",uploadData.imageUrl ? "Added" : "Not added",5)}
-${summaryRow("Product Name",uploadData.productName || "-",2)}
-${summaryRow("Size",uploadData.size || "-",0)}
-${summaryRow("Category",uploadData.category || "-",1)}
+${summaryRow("Main Image",uploadData.imageUrl ? "Added" : "Not added",6)}
+${summaryRow("Product Name",uploadData.productName || "-",3)}
+${summaryRow("Size",uploadData.size || "-",1)}
+${summaryRow("Category",uploadData.category || "-",2)}
 ${productTypeRow}
-${summaryRow("Price","Rs " + (uploadData.price || "0"),3)}
-${summaryRow("Description1",uploadData.description1 || "-",4)}
-${summaryRow("Description2",uploadData.description2 || "-",4)}
-${summaryRow("Stock",uploadData.stock || "-",4)}
-${summaryRow("Today Offer",uploadData.todayOffer || "0",3)}
-${summaryRow("Flat Discount",(uploadData.flatDiscount || "0") + "%",6)}
-${summaryRow("Big Day Sale",(uploadData.bigDaySale || "0") + "%",6)}
-${summaryRow("Show",showVisible ? "Visible in app" : "Hidden from app",2)}
+${summaryRow("Price","Rs " + (uploadData.price || "0"),4)}
+${summaryRow("Description1",uploadData.description1 || "-",5)}
+${summaryRow("Description2",uploadData.description2 || "-",5)}
+${summaryRow("Stock",uploadData.stock || "-",5)}
+${summaryRow("Today Offer",uploadData.todayOffer || "0",4)}
+${summaryRow("Flat Discount",(uploadData.flatDiscount || "0") + "%",7)}
+${summaryRow("Big Day Sale",(uploadData.bigDaySale || "0") + "%",7)}
+${summaryRow("Show",showVisible ? "Visible in app" : "Hidden from app",3)}
 </div>
 `;
-renderEditList();
 }
 
 function setReviewMode(mode){
@@ -2066,17 +2184,13 @@ renderStage();
 }
 
 function renderReviewMode(){
-let productTab = document.getElementById("reviewProductTab");
-let editTab = document.getElementById("editProductTab");
 let productPanel = document.getElementById("reviewProductPanel");
 let editPanel = document.getElementById("editProductPanel");
 
-if(!productTab || !editTab || !productPanel || !editPanel){
+if(!productPanel || !editPanel){
 return;
 }
 
-productTab.classList.toggle("active",reviewMode === "product");
-editTab.classList.toggle("active",reviewMode === "edit");
 productPanel.classList.toggle("active",reviewMode === "product");
 editPanel.classList.toggle("active",reviewMode === "edit");
 }
