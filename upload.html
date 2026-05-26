@@ -2419,12 +2419,87 @@ shipping:"Free Shipping"
 });
 }
 
+function getFreshProductUrl(){
+let separator = PRODUCT_API.indexOf("?") === -1 ? "?" : "&";
+return PRODUCT_API + separator + "_=" + Date.now();
+}
+
+function wait(ms){
+return new Promise(function(resolve){
+setTimeout(resolve,ms);
+});
+}
+
+function productMatchesSavedData(product,savedData){
+if(!product){
+return false;
+}
+
+let productId = String(getField(product,["Product ID","productId"]) || "").trim().toUpperCase();
+let savedId = String(savedData.productId || "").trim().toUpperCase();
+
+if(productId !== savedId){
+return false;
+}
+
+let checks = [
+["Product Name",savedData.productName],
+["Category",savedData.category],
+["Show",savedData.show],
+["Price",savedData.price],
+["Stock",savedData.stock],
+["Today Offer",savedData.todayOffer],
+["Description1",savedData.description1]
+];
+
+return checks.every(function(check){
+let sheetValue = String(getField(product,[check[0]]) || "").trim();
+let savedValue = String(check[1] || "").trim();
+return sheetValue === savedValue;
+});
+}
+
+function verifyProductSaved(savedData,attempt){
+attempt = attempt || 1;
+
+return wait(attempt === 1 ? 1200 : 1800)
+.then(function(){
+return fetch(getFreshProductUrl());
+})
+.then(function(res){
+return res.json();
+})
+.then(function(data){
+let products = Array.isArray(data) ? data : [];
+liveProducts = products;
+
+let savedProduct = products.find(function(product){
+let productId = String(getField(product,["Product ID","productId"]) || "").trim().toUpperCase();
+let savedId = String(savedData.productId || "").trim().toUpperCase();
+return productId === savedId;
+});
+
+if(productMatchesSavedData(savedProduct,savedData)){
+return true;
+}
+
+if(attempt < 5){
+return verifyProductSaved(savedData,attempt + 1);
+}
+
+return false;
+});
+}
+
 function uploadProduct(){
 if(!validateAll()){
 return;
 }
 
 let btn = document.getElementById("uploadBtn");
+let savedData = payload();
+let successMessage = editMode ? "Product Reupdated Successfully" : "New Product Uploaded Successfully";
+
 btn.disabled = true;
 btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
@@ -2432,12 +2507,22 @@ fetch(SCRIPT_API,{
 method:"POST",
 mode:"no-cors",
 headers:{"Content-Type":"text/plain;charset=utf-8"},
-body:JSON.stringify(payload())
+body:JSON.stringify(savedData)
 })
 .then(function(){
+btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking Sheet...`;
+return verifyProductSaved(savedData);
+})
+.then(function(saved){
+if(!saved){
+btn.disabled = false;
+btn.innerText = editMode ? "Reupdate Product" : "Upload Product";
+showToast("Product not saved. Redeploy Apps Script and try again.");
+return;
+}
+
 localStorage.removeItem(CACHE_KEY);
 localStorage.removeItem(DRAFT_KEY);
-let successMessage = editMode ? "Product Reupdated Successfully" : "New Product Uploaded Successfully";
 showSuccessBox(successMessage);
 setTimeout(function(){
 returnToUploadStart();
@@ -2446,7 +2531,7 @@ returnToUploadStart();
 .catch(function(){
 btn.disabled = false;
 btn.innerText = editMode ? "Reupdate Product" : "Upload Product";
-showToast("Upload failed. Try again.");
+showToast("Could not confirm save. Check internet and Apps Script.");
 });
 }
 
