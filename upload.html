@@ -291,6 +291,39 @@ box-shadow:0 10px 26px rgba(7,29,51,0.08);
 border:1px solid rgba(24,119,242,0.08);
 }
 
+.review-tabs{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:12px;
+}
+
+.review-tab{
+border:1px solid #d6e7ff;
+background:#f8fbff;
+color:#607086;
+border-radius:18px;
+min-height:48px;
+font-size:14px;
+font-weight:900;
+cursor:pointer;
+}
+
+.review-tab.active{
+background:linear-gradient(135deg,#1877F2,#0f6be8);
+color:white;
+border-color:#1877F2;
+box-shadow:0 8px 18px rgba(24,119,242,0.20);
+}
+
+.review-panel{
+display:none;
+}
+
+.review-panel.active{
+display:block;
+}
+
 .panel + .panel{
 margin-top:14px;
 }
@@ -985,14 +1018,19 @@ transform:translateY(0);
 </div>
 
 <div class="stage" data-stage="review">
-<div class="panel">
+<div class="review-tabs">
+<button class="review-tab active" id="reviewProductTab" onclick="setReviewMode('product')">Review Product</button>
+<button class="review-tab" id="editProductTab" onclick="setReviewMode('edit')">Edit Product</button>
+</div>
+
+<div class="panel review-panel active" id="reviewProductPanel">
 <div class="stage-title">Review & Upload</div>
 <div class="helper">Check product details before saving to Sheet.</div>
 <div id="reviewBox"></div>
 </div>
-<div class="panel">
+<div class="panel review-panel" id="editProductPanel">
 <div class="stage-title">Edit Uploaded Product</div>
-<div class="helper">Search live products, tap a card, edit details, then upload as update.</div>
+<div class="helper">Search live products and tap Edit. Upload button stays hidden here to avoid mistakes.</div>
 <div class="edit-search">
 <input class="field" id="editSearch" placeholder="Search name or ID">
 <button class="primary-btn" onclick="loadLiveProducts()" style="height:54px;border-radius:18px;padding:0 14px;"><i class="fa-solid fa-rotate"></i></button>
@@ -1003,7 +1041,7 @@ transform:translateY(0);
 </div>
 </div>
 
-<div class="footer-actions">
+<div class="footer-actions" id="footerActions">
 <button class="footer-back" id="backBtn" onclick="prevStage()">Back</button>
 <button class="footer-skip" id="skipBtn" onclick="skipStage()" style="display:none;">Skip</button>
 <button class="footer-next" id="nextBtn" onclick="nextStage()">Next</button>
@@ -1103,6 +1141,7 @@ let editFilter = "All";
 let pendingSale = null;
 let imageCheckState = {};
 let returnToReviewMode = false;
+let reviewMode = "product";
 
 let uploadData = {
 size:"Free Size",
@@ -1308,10 +1347,22 @@ renderDiscountButtons();
 }
 
 function renderStageLabels(){
-document.getElementById("stageLabels").innerHTML = stages.map(function(stage,index){
+let labelBox = document.getElementById("stageLabels");
+labelBox.innerHTML = stages.map(function(stage,index){
 let cls = index === currentStage ? "active" : (index < currentStage ? "done" : "");
 return `<div class="stage-pill ${cls}">${index < currentStage ? "✓ " : ""}${stage.label}</div>`;
 }).join("");
+
+let activePill = labelBox.querySelector(".stage-pill.active");
+if(activePill){
+setTimeout(function(){
+activePill.scrollIntoView({
+behavior:"smooth",
+block:"nearest",
+inline:"center"
+});
+},60);
+}
 }
 
 function renderSizeButtons(){
@@ -1956,10 +2007,12 @@ document.getElementById("stepCount").innerText = "Step " + (currentStage + 1) + 
 document.getElementById("progressFill").style.width = (((currentStage + 1) / stages.length) * 100) + "%";
 
 let isReviewStage = currentStage === stages.length - 1;
+let hideFooter = isReviewStage && reviewMode === "edit";
+document.getElementById("footerActions").style.display = hideFooter ? "none" : "flex";
 document.getElementById("backBtn").style.display = returnToReviewMode || currentStage === 0 ? "none" : "block";
 document.getElementById("nextBtn").style.display = isReviewStage ? "none" : "block";
 document.getElementById("nextBtn").innerText = returnToReviewMode ? "Back to Review" : "Next";
-document.getElementById("uploadBtn").style.display = isReviewStage ? "block" : "none";
+document.getElementById("uploadBtn").style.display = isReviewStage && reviewMode === "product" ? "block" : "none";
 document.getElementById("skipBtn").style.display = !returnToReviewMode && stages[currentStage].key === "images" ? "block" : "none";
 document.getElementById("uploadBtn").innerText = editMode ? "Reupdate Product" : "Upload Product";
 renderStageLabels();
@@ -1967,6 +2020,7 @@ renderStageLabels();
 if(stages[currentStage].key === "review"){
 returnToReviewMode = false;
 renderReview();
+renderReviewMode();
 }
 
 window.scrollTo({top:0,behavior:"smooth"});
@@ -2003,6 +2057,28 @@ ${summaryRow("Show",showVisible ? "Visible in app" : "Hidden from app",2)}
 </div>
 `;
 renderEditList();
+}
+
+function setReviewMode(mode){
+reviewMode = mode;
+renderReviewMode();
+renderStage();
+}
+
+function renderReviewMode(){
+let productTab = document.getElementById("reviewProductTab");
+let editTab = document.getElementById("editProductTab");
+let productPanel = document.getElementById("reviewProductPanel");
+let editPanel = document.getElementById("editProductPanel");
+
+if(!productTab || !editTab || !productPanel || !editPanel){
+return;
+}
+
+productTab.classList.toggle("active",reviewMode === "product");
+editTab.classList.toggle("active",reviewMode === "edit");
+productPanel.classList.toggle("active",reviewMode === "product");
+editPanel.classList.toggle("active",reviewMode === "edit");
 }
 
 function summaryRow(label,value,stageIndex){
@@ -2253,6 +2329,7 @@ return;
 
 uploadData = Object.assign(uploadData,productToUploadData(product));
 editMode = true;
+reviewMode = "product";
 document.getElementById("modeText").innerText = "Editing product";
 fillForm();
 currentStage = stages.length - 1;
