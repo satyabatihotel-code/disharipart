@@ -712,8 +712,8 @@ Hidden seller tool
 
 <script>
 const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
-const ORDERS_API = SCRIPT_API + "?type=orders";
 const SELLER_PIN = "7044";
+const ADMIN_TOKEN = "DISHARI_ADMIN_7044_2026";
 const AUTO_EXIT_MS = 50000;
 const WARNING_MS = 45000;
 
@@ -726,6 +726,14 @@ const STATUS_OPTIONS = [
 {label:"Delivered", value:"Delivered"},
 {label:"Cancelled", value:"Cancelled"}
 ];
+
+function getAdminToken(){
+return sessionStorage.getItem("dishariAdminToken") || "";
+}
+
+function getAdminOrdersUrl(){
+return SCRIPT_API + "?type=adminOrders&adminToken=" + encodeURIComponent(getAdminToken()) + "&_=" + Date.now();
+}
 
 let allOrders = [];
 let filteredOrders = [];
@@ -756,6 +764,7 @@ let pin = document.getElementById("pinInput").value.trim();
 
 if(pin === SELLER_PIN){
 sessionStorage.setItem("dishariStatusUnlocked","yes");
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinOverlay").style.display = "none";
 loadOrders();
 startAutoExit();
@@ -767,6 +776,7 @@ showToast("Wrong PIN");
 
 function guardPage(){
 if(sessionStorage.getItem("dishariStatusUnlocked") === "yes"){
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinOverlay").style.display = "none";
 loadOrders();
 startAutoExit();
@@ -775,6 +785,7 @@ startAutoExit();
 
 function exitStatus(){
 sessionStorage.removeItem("dishariStatusUnlocked");
+sessionStorage.removeItem("dishariAdminToken");
 window.location.replace("grow.html");
 }
 
@@ -801,6 +812,7 @@ showToast("Auto exit in 5 seconds","warning");
 
 exitTimer = setTimeout(function(){
 sessionStorage.removeItem("dishariStatusUnlocked");
+sessionStorage.removeItem("dishariAdminToken");
 showToast("Session expired");
 setTimeout(function(){
 window.location.replace("grow.html");
@@ -912,7 +924,7 @@ return timeB - timeA;
 function loadOrders(){
 document.getElementById("ordersList").innerHTML = `<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i>Loading orders...</div>`;
 
-fetch(ORDERS_API)
+fetch(getAdminOrdersUrl())
 .then(function(res){
 return res.json();
 })
@@ -1111,7 +1123,8 @@ headers:{
 body:JSON.stringify({
 type:"updateStatus",
 orderId:order.orderId,
-status:order.selectedStatus
+status:order.selectedStatus,
+adminToken:getAdminToken()
 })
 })
 .then(function(){
