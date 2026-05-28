@@ -296,6 +296,15 @@ cursor:pointer;
 box-shadow:0 6px 15px rgba(24,119,242,0.25);
 }
 
+.cart-btn:disabled,
+.add-btn:disabled{
+background:#e7eef8;
+color:#7b8aa0;
+box-shadow:none;
+border:1px solid #d8e4f3;
+cursor:not-allowed;
+}
+
 .product-skeleton{
 height:430px;
 background:white;
@@ -1748,6 +1757,9 @@ return;
 
 data.forEach((product,index)=>{
 let imageUrl = normalizeImageUrl(product["Image Url"] || "");
+let inStock = isProductInStock(product);
+let cartButtonText = inStock ? "Add To Cart" : "Out Of Stock";
+let cartButtonDisabled = inStock ? "" : "disabled";
 html += `
 <div class="product-card" onclick='openPopup(${JSON.stringify(product)})'>
 ${String(product["Category"] || "").trim().toLowerCase() === "new arrivals" ? '<div class="new-badge">NEW</div>' : ''}
@@ -1763,7 +1775,7 @@ alt="${product["Product Name"] || "Dishari product"}"
 <div class="product-name">${product["Product Name"] || ""}</div>
 <div class="product-price">₹ ${product["Price"] || ""}</div>
 <div class="product-desc">${product["Description1"] || ""}</div>
-<button class="cart-btn" onclick='event.stopPropagation();openPopup(${JSON.stringify(product)})'>Add To Cart</button>
+<button class="cart-btn" ${cartButtonDisabled} onclick='event.stopPropagation();openPopup(${JSON.stringify(product)})'>${cartButtonText}</button>
 </div>
 `;
 });
@@ -1863,6 +1875,11 @@ updateCartCount();
 }
 let sizeToastTimer = null;
 
+function isProductInStock(product){
+let stock = String(product && product["Stock"] ? product["Stock"] : "").trim().toLowerCase();
+return stock === "yes" || stock === "in stock";
+}
+
 function showSizeToastMessage(message){
 let text = document.getElementById("sizeToastText");
 
@@ -1895,6 +1912,10 @@ if(!currentProduct){
 return;
 }
 
+if(!isProductInStock(currentProduct)){
+return;
+}
+
 if(!selectedPopupSize){
 showSizeToastMessage("Please select a size");
 return;
@@ -1903,14 +1924,14 @@ return;
 let price = Number(currentProduct["Price"]) || 0;
 let todayOffer = Number(currentProduct["Today Offer"]) || 0;
 let stock = (currentProduct["Stock"] || "").toLowerCase();
-let isInStock = stock == "yes" || stock == "in stock";
+let isInStock = isProductInStock(currentProduct);
 let finalPrice = price;
 
-if(todayOffer > 0 && price > 0){
-finalPrice = Math.max(price - todayOffer, 0);
-}
-else if(globalSale && isInStock && price > 0){
+if(globalSale && isInStock && price > 0){
 finalPrice = Math.round(price - ((price * globalSale.percent) / 100));
+}
+else if(todayOffer > 0 && price > 0){
+finalPrice = Math.max(price - todayOffer, 0);
 }
 
 let imageUrl = normalizeImageUrl(currentProduct["Image Url"] || "");
@@ -2344,25 +2365,9 @@ document.getElementById("popupName").innerText = product["Product Name"];
 let price = Number(product["Price"]) || 0;
 let todayOffer = Number(product["Today Offer"]) || 0;
 let stock = (product["Stock"] || "").toLowerCase();
-let isInStock = stock == "yes" || stock == "in stock";
+let isInStock = isProductInStock(product);
 
-if(todayOffer > 0 && price > 0){
-
-let finalPrice = Math.max(price - todayOffer, 0);
-let discountPercent = Math.round((todayOffer / price) * 100);
-
-document.getElementById("popupPrice").style.display = "none";
-
-document.getElementById("offerSection").innerHTML = `
-<div class="offer-box">
-<div class="old-price">₹ ${price}</div>
-<div class="offer-price">₹ ${finalPrice}</div>
-<div class="offer-tag">Today Offer · ${discountPercent}% OFF</div>
-</div>
-`;
-
-}
-else if(globalSale && isInStock && price > 0){
+if(globalSale && isInStock && price > 0){
 
 let discountPercent = globalSale.percent;
 let finalPrice = Math.round(price - ((price * discountPercent) / 100));
@@ -2374,6 +2379,22 @@ document.getElementById("offerSection").innerHTML = `
 <div class="old-price">₹ ${price}</div>
 <div class="offer-price">₹ ${finalPrice}</div>
 <div class="offer-tag">${globalSale.label} · ${discountPercent}% OFF</div>
+</div>
+`;
+
+}
+else if(todayOffer > 0 && price > 0){
+
+let finalPrice = Math.max(price - todayOffer, 0);
+let discountPercent = Math.round((todayOffer / price) * 100);
+
+document.getElementById("popupPrice").style.display = "none";
+
+document.getElementById("offerSection").innerHTML = `
+<div class="offer-box">
+<div class="old-price">₹ ${price}</div>
+<div class="offer-price">₹ ${finalPrice}</div>
+<div class="offer-tag">Today Offer · ${discountPercent}% OFF</div>
 </div>
 `;
 
@@ -2391,6 +2412,12 @@ document.getElementById("popupStock").innerHTML = `<div class="popup-stock in-st
 }
 else{
 document.getElementById("popupStock").innerHTML = `<div class="popup-stock out-stock">Out Of Stock</div>`;
+}
+
+let popupCartButton = document.querySelector("#popup .add-btn");
+if(popupCartButton){
+popupCartButton.disabled = !isInStock;
+popupCartButton.innerText = isInStock ? "Add To Cart" : "Out Of Stock";
 }
 
 selectedPopupSize = "";
