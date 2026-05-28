@@ -425,11 +425,20 @@ Search
 <div class="toast" id="toast"></div>
 
 <script>
-const ORDER_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec?type=orders";
+const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
 const SELLER_PIN = "7044";
+const ADMIN_TOKEN = "DISHARI_ADMIN_7044_2026";
 
 let allOrders = [];
 let currentOrderId = "dishari-label";
+
+function getAdminToken(){
+return sessionStorage.getItem("dishariAdminToken") || "";
+}
+
+function getAdminOrdersUrl(){
+return SCRIPT_API + "?type=adminOrders&adminToken=" + encodeURIComponent(getAdminToken()) + "&_=" + Date.now();
+}
 
 function showToast(message){
 let toast = document.getElementById("toast");
@@ -450,6 +459,7 @@ return;
 }
 
 sessionStorage.setItem("dishariSellerUnlocked","yes");
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinCard").style.display = "none";
 document.getElementById("searchCard").style.display = "block";
 setTimeout(function(){
@@ -553,7 +563,7 @@ return Number(String(order.orderId || "").replace(/\D/g,"")) || 0;
 }
 
 async function loadOrders(){
-let response = await fetch(ORDER_API);
+let response = await fetch(getAdminOrdersUrl());
 let data = await response.json();
 
 if(Array.isArray(data)){
@@ -743,6 +753,7 @@ findOrder();
 });
 
 if(sessionStorage.getItem("dishariSellerUnlocked") === "yes"){
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinCard").style.display = "none";
 document.getElementById("searchCard").style.display = "block";
 }
