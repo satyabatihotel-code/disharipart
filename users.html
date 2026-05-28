@@ -825,8 +825,8 @@ Auto exit 50s
 
 <script>
 const SCRIPT_API = "https://script.google.com/macros/s/AKfycbxsMa2lo42bcs36DvEyR-_EFM24tYnB8OuBvlRU94Y7jNcz0cxbcvbX7ripAeFwsVApug/exec";
-const USER_API = SCRIPT_API + "?type=users";
 const SELLER_PIN = "7044";
+const ADMIN_TOKEN = "DISHARI_ADMIN_7044_2026";
 const AUTO_EXIT_MS = 50000;
 const WARNING_MS = 45000;
 
@@ -836,6 +836,14 @@ let activeFilter = "today";
 let toastTimer = null;
 let warningTimer = null;
 let exitTimer = null;
+
+function getAdminToken(){
+return sessionStorage.getItem("dishariAdminToken") || "";
+}
+
+function getAdminUsersUrl(){
+return SCRIPT_API + "?type=adminUsers&adminToken=" + encodeURIComponent(getAdminToken()) + "&_=" + Date.now();
+}
 
 function digitsOnly(input,maxLength){
 input.value = input.value.replace(/\D/g,"").slice(0,maxLength);
@@ -860,6 +868,7 @@ let pin = document.getElementById("pinInput").value.trim();
 
 if(pin === SELLER_PIN){
 sessionStorage.setItem("dishariUsersUnlocked","yes");
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinOverlay").style.display = "none";
 loadUsers();
 startAutoExit();
@@ -871,6 +880,7 @@ showToast("Wrong PIN");
 
 function guardPage(){
 if(sessionStorage.getItem("dishariUsersUnlocked") === "yes"){
+sessionStorage.setItem("dishariAdminToken",ADMIN_TOKEN);
 document.getElementById("pinOverlay").style.display = "none";
 loadUsers();
 startAutoExit();
@@ -900,6 +910,7 @@ showToast("Auto exit in 5 seconds","warning");
 
 exitTimer = setTimeout(function(){
 sessionStorage.removeItem("dishariUsersUnlocked");
+sessionStorage.removeItem("dishariAdminToken");
 showToast("Session expired");
 setTimeout(function(){
 window.location.replace("home.html");
@@ -909,6 +920,7 @@ window.location.replace("home.html");
 
 function exitUsers(){
 sessionStorage.removeItem("dishariUsersUnlocked");
+sessionStorage.removeItem("dishariAdminToken");
 window.location.replace("home.html");
 }
 
@@ -1057,7 +1069,7 @@ return timeB - timeA;
 function loadUsers(){
 document.getElementById("userList").innerHTML = `<div class="loading"><i class="fa-solid fa-spinner fa-spin"></i>Loading users...</div>`;
 
-fetch(USER_API)
+fetch(getAdminUsersUrl())
 .then(function(res){
 return res.json();
 })
@@ -1413,4 +1425,3 @@ guardPage();
 </script>
 </body>
 </html>
-
